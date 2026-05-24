@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reliance Retail — SOP Operations Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+:root {
+  --blue: #003380;
+  --accent: #0056B3;
+  --red: #DC0000;
+  --bg: #F8F9FB;
+  --white: #FFFFFF;
+  --text: #1F2937;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+  --sh: 0 4px 12px rgba(0, 51, 128, 0.03);
+  --sh2: 0 12px 32px rgba(0, 51, 128, 0.08);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-morph: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-morph-out: cubic-bezier(0.32, 0, 0.67, 0);
+  --duration-fast: 180ms;
+  --duration-base: 300ms;
+  --duration-morph: 460ms;
+  --duration-scene: 420ms;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+#root{height:100vh;display:flex;flex-direction:column;}
+/* HEADER */
+.hdr{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none;}
+.logo-sq{width:28px;height:28px;background:var(--red);border-radius:3px;flex-shrink:0;}
+.logo-txt{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.6px;text-transform:uppercase;}
+.bc{display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;}
+.bc-seg{font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap;display:inline-block !important;transition:color var(--duration-fast) var(--ease-spring), transform var(--duration-fast) var(--ease-spring);animation: bc-segment-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;}
+.bc-seg:hover:not(.cur){color:var(--blue);transform:scale(1.04);}
+.bc-seg:active:not(.cur){transform:scale(0.96);}
+.bc-seg.cur{color:var(--blue);font-weight:600;cursor:default;}
+.bc-sep{color:#D1D5DB;font-size:11px;flex-shrink:0;transition:transform var(--duration-fast) var(--ease-spring), opacity var(--duration-fast) var(--ease-spring);display:inline-block;}
+@keyframes bc-segment-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
+.srch-btn{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;transition:all var(--duration-base) var(--ease-spring);flex-shrink:0;}
+.srch-btn:hover{border-color:var(--accent);color:var(--blue);}
+.kbd{background:var(--white);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:10px;color:var(--muted);}
+/* HOLISTIC DASHBOARD LAYOUT VIEW TRANSITIONS */
+.main {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* SCOPED SYSTEM VIEW TRANSITIONS */
+.main > .view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: 50% 42%;
+  transition: opacity var(--duration-scene) var(--ease-morph), transform var(--duration-scene) var(--ease-morph);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Active entering view wrapper */
+.main > .view.view-enter {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0) scale(1);
+  z-index: 5;
+}
+
+/* Forward Drilled Transitions */
+html[data-nav="fwd"] .main > .view.view-exit {
+  opacity: 0;
+  transform: translate3d(0, -10px, 0) scale(0.986);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Backward Reversal Transitions */
+html[data-nav="back"] .main > .view.view-exit {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0) scale(1.014);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* HOME */
+.home{padding:44px 40px 40px;max-width:1440px;margin:0 auto;}
+.home-ttl{font-size:27px;font-weight:700;color:var(--blue);margin-bottom:6px;}
+.home-sub{font-size:14px;color:var(--muted);margin-bottom:36px;}
+.fn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.fn-card, .proc-card, .sub-card {
+  transition:
+    transform var(--duration-base) var(--ease-spring),
+    box-shadow var(--duration-base) var(--ease-spring),
+    border-color var(--duration-base) var(--ease-spring),
+    opacity 0.4s var(--ease-spring);
+  will-change: transform;
+}
+.fn-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  box-shadow: var(--sh);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  opacity: 1; 
+  transform: translateY(0) scale(1);
+  transition: transform var(--duration-base) var(--ease-spring), box-shadow var(--duration-base) var(--ease-spring), border-color var(--duration-base) var(--ease-spring);
+  @starting-style { opacity: 0; transform: translateY(12px) scale(0.97); }
+}
+.fn-card:nth-child(1){transition-delay:0ms;}.fn-card:nth-child(2){transition-delay:50ms;}.fn-card:nth-child(3){transition-delay:100ms;}.fn-card:nth-child(4){transition-delay:150ms;}
+.fn-card:nth-child(5){transition-delay:200ms;}.fn-card:nth-child(6){transition-delay:250ms;}.fn-card:nth-child(7){transition-delay:300ms;}.fn-card:nth-child(8){transition-delay:350ms;}
+.fn-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--sh2); border-color: var(--blue); }
+.fn-card:active { transform: translateY(-1px) scale(1.002); transition-duration: 80ms; }
+.fn-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.pillar-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.sop-chip{background:#F0F4FA;color:var(--blue);border:1px solid #D6E4F0;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;}
+.fn-name{font-size:19px;font-weight:700;color:var(--blue);margin-bottom:8px;}
+.fn-desc{font-size:12px;color:var(--muted);line-height:1.55;}
+.fn-divider{margin-top:18px;height:1px;background:var(--border);}
+/* PROCESSES */
+.pv{padding:0;display:flex;flex-direction:column;height:100%;}
+.fn-hdr{background:var(--blue);color:white;padding:18px 32px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;transform:translate3d(0,0,0);backface-visibility:hidden;contain:paint;}
+.fn-hdr-name{font-size:22px;font-weight:700;letter-spacing:-.2px;}
+.fn-hdr-meta{font-size:12px;opacity:.7;margin-top:2px;}
+.fn-hdr-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:4px 14px;font-size:13px;font-weight:700;}
+.proc-body{flex:1;overflow-y:auto;padding:28px 32px;}
+.proc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.proc-card{background:var(--white);border-radius:12px;padding:20px;cursor:pointer;box-shadow:var(--sh);border:1.5px solid var(--border);display:flex;flex-direction:column;gap:10px;
+  opacity: 1; transform: translateY(0) scale(1);
+  @starting-style { opacity: 0; transform: translateY(12px) scale(0.97); }
+}
+.proc-card:nth-child(1){transition-delay:0ms;}.proc-card:nth-child(2){transition-delay:50ms;}.proc-card:nth-child(3){transition-delay:100ms;}.proc-card:nth-child(4){transition-delay:150ms;}.proc-card:nth-child(5){transition-delay:200ms;}.proc-card:nth-child(6){transition-delay:250ms;}
+.proc-card:hover{border-color:var(--accent);box-shadow:var(--sh2);transform:translateY(-3px) scale(1.01);}
+.proc-card:active{transform:translateY(0) scale(1.005);transition-duration:80ms;}
+.proc-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.proc-name{font-size:15px;font-weight:700;color:var(--blue);line-height:1.3;}
+.proc-count{background:#EEF2FF;color:var(--blue);font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.proc-topics{display:flex;flex-direction:column;gap:4px;}
+.proc-topic-pill{font-size:11px;color:var(--muted);padding:3px 8px;background:#F3F4F6;border-radius:4px;line-height:1.4;}
+.proc-arrow{color:var(--accent);font-size:18px;font-weight:300;align-self:flex-end;margin-top:4px;}
+/* TOPIC VIEW */
+.tv{display:flex;flex-direction:column;height:100%;}
+.proc-hdr{background:#EEF5FF;border-bottom:1px solid #D0E4FF;padding:12px 32px;flex-shrink:0;display:flex;align-items:center;gap:12px;}
+.proc-hdr-name{font-size:16px;font-weight:700;color:var(--blue);}
+.proc-hdr-count{font-size:12px;color:var(--accent);font-weight:600;}
+.pills-row-wrap{padding:16px 32px 12px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;overflow-x:auto;}
+.pills-row{display:flex;gap:8px;min-width:max-content;position:relative;}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:99px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;font-family:inherit;position:relative;transition:color var(--duration-fast) var(--ease-spring), background var(--duration-base) var(--ease-spring), border-color var(--duration-base) var(--ease-spring), transform var(--duration-fast) var(--ease-spring);}
+.pill:hover:not(.active){border-color:var(--accent);color:var(--blue);transform:scale(1.04);}
+.pill:active{transform:scale(0.96);transition-duration:80ms;}
+.pill.active{background:var(--accent);border-color:var(--accent);color:white;font-weight:600;animation:pill-pop 0.35s var(--ease-bounce) both;}
+@keyframes pill-pop { 0% { transform: scale(0.92); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+.pill-cnt{font-size:11px;font-weight:700;opacity:.8;}
+.subs-body{flex:1;overflow-y:auto;padding:24px 32px;}
+.subs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.sub-card{background:var(--white);border-radius:10px;padding:16px;cursor:pointer;box-shadow:var(--sh);border:1.5px solid var(--border);display:flex;flex-direction:column;gap:8px;
+  opacity: 1; transform: translateY(0) scale(1);
+  @starting-style { opacity: 0; transform: translateY(12px) scale(0.97); }
+}
+.sub-card:nth-child(1){transition-delay:0ms;}.sub-card:nth-child(2){transition-delay:35ms;}.sub-card:nth-child(3){transition-delay:70ms;}.sub-card:nth-child(4){transition-delay:105ms;}.sub-card:nth-child(5){transition-delay:140ms;}.sub-card:nth-child(6){transition-delay:175ms;}
+.sub-card:hover{border-color:var(--accent);box-shadow:var(--sh2);transform:translateY(-2px) scale(1.015);}
+.sub-card:active{transform:translateY(0) scale(1.008);transition-duration:80ms;}
+.sub-badge{display:inline-flex;align-items:center;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.4px;}
+.sub-name{font-size:12px;color:var(--text);line-height:1.5;font-weight:500;}
+.sub-arrow{font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;}
+/* WORKSPACE */
+.ws{display:flex;flex-direction:column;height:100%;}
+.ws-sub-hdr{background:var(--blue);color:white;padding:10px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;font-size:13px;transform:translate3d(0,0,0);backface-visibility:hidden;contain:paint;}
+.ws-sub-sep{opacity:.4;}
+.ws-fn{font-weight:600;opacity:.8;}
+.ws-proc{font-weight:600;}
+.ws-sop{opacity:.7;font-size:12px;}
+.ws-body{display:flex;flex:1;overflow:hidden;}
+.ws-left{width:60%;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--white);}
+.ws-left-hdr{padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ws-left-title{font-size:14px;font-weight:700;color:var(--blue);}
+.ws-left-hint{font-size:11px;color:var(--muted);margin-top:2px;}
+.ws-right{width:40%;display:flex;flex-direction:column;overflow:hidden;background:var(--white);}
+.ws-right-hdr{padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.ws-right-title{font-size:14px;font-weight:700;color:var(--blue);}
+.ws-right-mode{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.ws-right-mode.instr{background:#EEF2FF;color:var(--blue);}
+.ws-right-mode.sap{background:#DC0000;color:white;}
+.ws-right-body{flex:1;overflow:hidden;}
+/* INSTRUCTIONS */
+.instr-panel{padding:20px;overflow-y:auto;height:100%;}
+.instr-sop-name{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px;line-height:1.4;}
+.instr-topic{font-size:11px;color:var(--muted);margin-bottom:16px;}
+.instr-steps{display:flex;flex-direction:column;gap:10px;}
+.instr-step{display:flex;gap:10px;align-items:flex-start;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-txt{font-size:12px;color:var(--text);line-height:1.55;}
+.instr-tip{margin-top:18px;background:#F0F7FF;border:1px solid #C7E2FF;border-radius:8px;padding:10px 12px;font-size:11px;color:var(--blue);display:flex;gap:8px;align-items:flex-start;}
+/* SEARCH OVERLAY TRANSITIONS */
+.srch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  z-index: 999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  pointer-events: none;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.srch-overlay.is-active {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+.srch-modal {
+  background: var(--white);
+  border-radius: 16px;
+  width: 600px;
+  max-width: 92vw;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.06);
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.94) translateY(-8px);
+  transform-origin: top center;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.srch-overlay.is-active .srch-modal {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.vt-fallback.srch-overlay { animation: fadeIn 0.2s ease forwards; }
+.srch-input-wrap{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);}
+.srch-icon{font-size:16px;color:var(--muted);}
+.srch-input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:transparent;}
+.srch-esc{font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--muted);}
+.srch-results{max-height:380px;overflow-y:auto;}
+.srch-empty{padding:32px;text-align:center;color:var(--muted);font-size:13px;}
+.srch-quick-pill{background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all var(--duration-base) var(--ease-spring);font-family:inherit;}
+.srch-quick-pill:hover{background:#EEF7FF;border-color:var(--accent);color:var(--blue);}
+.srch-group-hdr{padding:8px 18px 4px;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;background:var(--bg);}
+.srch-result{padding:10px 18px;cursor:pointer;border-bottom:1px solid var(--border);animation:srch-row-in 0.2s var(--ease-spring) both;transition:background var(--duration-fast) var(--ease-spring);border-radius:6px;}
+.srch-result:hover{background:#F0F7FF;transform:none;}
+.srch-result:nth-child(1){animation-delay:0ms;}.srch-result:nth-child(2){animation-delay:25ms;}.srch-result:nth-child(3){animation-delay:50ms;}.srch-result:nth-child(4){animation-delay:75ms;}.srch-result:nth-child(5){animation-delay:100ms;}.srch-result:nth-child(n+6){animation-delay:125ms;}
+@keyframes srch-row-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.srch-r-badge{display:inline-flex;background:var(--red);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:6px;vertical-align:middle;}
+.srch-r-name{font-size:13px;color:var(--text);font-weight:500;}
+.srch-r-path{font-size:11px;color:var(--muted);margin-top:2px;}
+.srch-footer{padding:8px 18px;background:var(--bg);border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;gap:16px;}
+.srch-hint{display:flex;align-items:center;gap:4px;}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes premiumMorphicEntrance { from { opacity: 0; transform: scale(0.95) translateY(-12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes contentReveal { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.2s ease forwards; }
+.search-fade-in { animation: contentReveal 0.24s cubic-bezier(0.25, 1, 0.5, 1) both; }
+@keyframes contentDelay { 0%, 40% { opacity: 0; } 100% { opacity: 1; } }
+
+/* NODE DETAIL PANEL */
+.ndp{padding:18px 20px;overflow-y:auto;height:100%;animation:panel-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;}
+@keyframes panel-slide-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+.ndp-type-badge{display:inline-flex;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.ndp-type-process{background:#EEF2FF;color:var(--blue);}
+.ndp-type-sap{background:var(--red);color:white;}
+.ndp-type-decision{background:#FEF3C7;color:#92400E;}
+.ndp-title{font-size:14px;font-weight:700;color:var(--blue);margin-bottom:12px;line-height:1.3;}
+.ndp-meta{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+.ndp-meta-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;min-width:72px;flex-shrink:0;}
+.ndp-meta-val{font-size:12px;color:var(--text);}
+.ndp-tcode{font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:var(--blue);background:#EEF2FF;padding:2px 8px;border-radius:4px;}
+.ndp-sec{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.ndp-steps{display:flex;flex-direction:column;gap:7px;}
+.ndp-step{display:flex;gap:8px;align-items:flex-start;}
+.ndp-sn{width:18px;height:18px;border-radius:50%;background:var(--blue);color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.ndp-step-txt{font-size:12px;color:var(--text);line-height:1.5;}
+.ndp-note{background:#FFFBEB;border:1px solid #F59E0B;border-radius:6px;padding:8px 10px;font-size:11px;color:#92400E;margin-top:6px;line-height:1.45;}
+.ndp-yes{background:#ECFDF5;border:1px solid #10B981;border-radius:6px;padding:7px 10px;font-size:12px;color:#065F46;margin-bottom:5px;}
+.ndp-no{background:#FEF2F2;border:1px solid #EF4444;border-radius:6px;padding:7px 10px;font-size:12px;color:#991B1B;margin-bottom:5px;}
+.ndp-esc{background:#F0F7FF;border:1px solid #93C5FD;border-radius:6px;padding:7px 10px;font-size:11px;color:var(--blue);}
+.ndp-output{background:#ECFDF5;border:1px solid #10B981;border-radius:6px;padding:7px 10px;font-size:12px;color:#065F46;margin-top:5px;}
+@keyframes node-active-ring { 0% { stroke-dashoffset: 100; opacity: 0.8; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+
+/* MAGNIFY */
+.magnify-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid rgba(255,255,255,.35);border-radius:6px;background:rgba(255,255,255,.12);color:white;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:background var(--duration-fast) var(--ease-spring), transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast) var(--ease-spring);}
+.magnify-btn:hover{background:rgba(255,255,255,.25);transform:scale(1.06);}
+.magnify-btn:active{transform:scale(0.94);transition-duration:60ms;}
+.magnify-overlay{position:fixed;inset:0;background:rgba(0,20,60,.7);backdrop-filter:blur(6px);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.3s var(--ease-spring);}
+.magnify-overlay.is-open{opacity:1;}
+.magnify-modal{background:var(--white);border-radius:16px;width:min(920px,94vw);height:min(700px,90vh);display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.4);overflow:hidden;transform:scale(0.95) translateY(24px);opacity:0;transform-origin:center bottom;transition:transform 0.4s var(--ease-spring), opacity 0.3s var(--ease-spring);}
+.magnify-overlay.is-open .magnify-modal{transform:scale(1) translateY(0);opacity:1;}
+.magnify-mhdr{background:var(--blue);color:white;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.magnify-mhdr-title{font-size:14px;font-weight:700;}
+.magnify-mclose{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:white;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;gap:5px;}
+.magnify-mclose:hover{background:rgba(255,255,255,.28);}
+.magnify-mbody{flex:1;overflow:hidden;}
+
+/* Explicit FLIP morph for the top blue bar. This keeps the tall-to-lean motion visible even without native view transitions. */
+.bar-morph-ghost{
+  position:fixed;
+  pointer-events:none;
+  z-index:5000;
+  background:var(--blue);
+  transform-origin:left top;
+  will-change:transform,opacity;
+  backface-visibility:hidden;
+  box-shadow:0 10px 28px rgba(0,51,128,.12);
+}
+.bar-morph-target-hidden{visibility:hidden!important;}
+
+/* NATIVE VIEW TRANSITION MORPH ENGINE */
+::view-transition-group(root),
+::view-transition-group(active-header-morph),
+::view-transition-group(active-subhdr-morph),
+::view-transition-group(bc-fn-morph),
+::view-transition-group(bc-proc-morph),
+::view-transition-group(bc-sop-morph),
+::view-transition-group(search-morph) {
+  animation-timing-function: var(--ease-morph);
+  backface-visibility: hidden;
+  z-index: 9999 !important;
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--duration-scene);
+}
+
+::view-transition-group(active-header-morph),
+::view-transition-group(active-subhdr-morph) {
+  animation-duration: var(--duration-morph);
+}
+
+::view-transition-group(bc-fn-morph),
+::view-transition-group(bc-proc-morph),
+::view-transition-group(bc-sop-morph),
+::view-transition-group(search-morph) {
+  animation-duration: var(--duration-morph);
+}
+
+::view-transition-old(active-header-morph) {
+  animation: morph-out-old calc(var(--duration-morph) * 0.74) var(--ease-morph-out) both;
+}
+::view-transition-new(active-header-morph) {
+  animation: morph-in-new var(--duration-morph) var(--ease-morph) both;
+}
+
+@keyframes morph-out-old {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to   { opacity: 0; transform: translate3d(0, -4px, 0) scale(0.985); }
+}
+@keyframes morph-in-new {
+  from { opacity: 0; transform: translate3d(0, 6px, 0) scale(1.012); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Keep global scene motion subtle so typography remains the primary moving object */
+html[data-nav="fwd"] ::view-transition-old(root) {
+  animation: scene-old calc(var(--duration-scene) * 0.65) var(--ease-morph-out) both;
+}
+html[data-nav="fwd"] ::view-transition-new(root) {
+  animation: scene-new var(--duration-scene) var(--ease-morph) both;
+}
+
+html[data-nav="back"] ::view-transition-old(root) {
+  animation: scene-old calc(var(--duration-scene) * 0.65) var(--ease-morph-out) both;
+  z-index: 10;
+}
+html[data-nav="back"] ::view-transition-new(root) {
+  animation: scene-new var(--duration-scene) var(--ease-morph) both;
+  z-index: 1;
+}
+
+@keyframes scene-old {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to   { opacity: 0.94; transform: translate3d(0, -2px, 0) scale(0.995); }
+}
+@keyframes scene-new {
+  from { opacity: 0.94; transform: translate3d(0, 2px, 0) scale(1.004); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::view-transition-old(bc-fn-morph),
+::view-transition-old(bc-proc-morph),
+::view-transition-old(bc-sop-morph) {
+  animation: text-flight-old var(--duration-morph) var(--ease-morph-out) both;
+  transform-origin: left center;
+}
+::view-transition-new(bc-fn-morph),
+::view-transition-new(bc-proc-morph),
+::view-transition-new(bc-sop-morph) {
+  animation: text-flight-new var(--duration-morph) var(--ease-morph) both;
+  transform-origin: left center;
+}
+@keyframes text-flight-old {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to   { opacity: 0; transform: translate3d(0, -3px, 0) scale(0.986); }
+}
+@keyframes text-flight-new {
+  from { opacity: 0; transform: translate3d(0, 3px, 0) scale(1.012); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+/* Disable default sliding/fading layout transitions when native view transitions are processing */
+html[data-nav]:not([data-nav=""]) .main > .view {
+  transition: none !important;
+  animation: none !important;
+}
+</style>
+
+<template id="__bundler_thumbnail" data-bg-color="#003380">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="1200" height="800" fill="#003380"/>
+    <!-- Header bar -->
+    <rect x="0" y="0" width="1200" height="64" fill="#00276b"/>
+    <rect x="32" y="20" width="24" height="24" rx="3" fill="#DC0000"/>
+    <rect x="66" y="24" width="120" height="10" rx="3" fill="rgba(255,255,255,0.7)"/>
+    <!-- Main title -->
+    <rect x="60" y="110" width="340" height="18" rx="4" fill="rgba(255,255,255,0.9)"/>
+    <rect x="60" y="138" width="220" height="10" rx="3" fill="rgba(255,255,255,0.4)"/>
+    <!-- Row 1 cards -->
+    <rect x="60"  y="180" width="250" height="140" rx="12" fill="white" opacity="0.95"/>
+    <rect x="60"  y="180" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <rect x="330" y="180" width="250" height="140" rx="12" fill="white" opacity="0.95"/>
+    <rect x="330" y="180" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <rect x="600" y="180" width="250" height="140" rx="12" fill="white" opacity="0.95"/>
+    <rect x="600" y="180" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <rect x="870" y="180" width="250" height="140" rx="12" fill="white" opacity="0.95"/>
+    <rect x="870" y="180" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <!-- Row 1 card labels -->
+    <rect x="76"  y="200" width="90" height="8" rx="2" fill="#003380" opacity="0.6"/>
+    <rect x="76"  y="218" width="130" height="14" rx="3" fill="#003380" opacity="0.9"/>
+    <rect x="346" y="200" width="90" height="8" rx="2" fill="#003380" opacity="0.6"/>
+    <rect x="346" y="218" width="150" height="14" rx="3" fill="#003380" opacity="0.9"/>
+    <rect x="616" y="200" width="90" height="8" rx="2" fill="#003380" opacity="0.6"/>
+    <rect x="616" y="218" width="110" height="14" rx="3" fill="#003380" opacity="0.9"/>
+    <rect x="886" y="200" width="90" height="8" rx="2" fill="#003380" opacity="0.6"/>
+    <rect x="886" y="218" width="140" height="14" rx="3" fill="#003380" opacity="0.9"/>
+    <!-- SOP count badges -->
+    <rect x="258" y="196" width="42" height="18" rx="9" fill="#EEF2FF"/>
+    <rect x="528" y="196" width="42" height="18" rx="9" fill="#EEF2FF"/>
+    <rect x="798" y="196" width="42" height="18" rx="9" fill="#EEF2FF"/>
+    <rect x="1068" y="196" width="42" height="18" rx="9" fill="#EEF2FF"/>
+    <!-- Row 2 cards -->
+    <rect x="60"  y="344" width="250" height="140" rx="12" fill="white" opacity="0.9"/>
+    <rect x="60"  y="344" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <rect x="330" y="344" width="250" height="140" rx="12" fill="white" opacity="0.9"/>
+    <rect x="330" y="344" width="250" height="4"   rx="2"  fill="#19AEFF"/>
+    <rect x="600" y="344" width="250" height="140" rx="12" fill="white" opacity="0.9"/>
+    <rect x="600" y="344" width="250" height="4"   rx="2"  fill="#DC0000"/>
+    <!-- SOP badge on last card -->
+    <rect x="807" y="356" width="33" height="16" rx="3" fill="#DC0000"/>
+    <!-- Red accent pill on card 3 row2 -->
+    <rect x="616" y="364" width="80" height="8" rx="2" fill="#003380" opacity="0.6"/>
+    <rect x="616" y="382" width="120" height="14" rx="3" fill="#003380" opacity="0.9"/>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+<script src="sop-data.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── FLOWCHART & SAP MOCKUP COMPONENTS ────────────────────
+const _B = '#003380', _A = '#19AEFF', _R = '#DC0000';
+
+// ─── PER-SOP FLOWCHART OVERRIDES ─────────────────────────
+const SOP_FLOW_OVERRIDES = {
+  1: { h: 890, nodes: [
+    { id:'start', type:'terminal', label:'START', cx:250, cy:52, w:100, h:40 },
+    { id:'n1', type:'process', label:'DC Vehicle Reports at Store', cx:250, cy:140, w:220, h:50 },
+    { id:'n2', type:'process', label:'Verify Documents & Site Code', cx:250, cy:240, w:220, h:50 },
+    { id:'n3', type:'decision', label:'Site Details Match?', cx:250, cy:342, r:68 },
+    { id:'n4', type:'process', label:'Unload & Validate HU Stickers', cx:250, cy:460, w:220, h:50 },
+    { id:'n5', type:'process', label:'Print & Sign TPOD (2 Copies)', cx:250, cy:558, w:220, h:50 },
+    { id:'n6', type:'sap', label:'SAP: Scan & Post GRN', cx:250, cy:656, w:220, h:50, img:'uploads/ABC.png' },
+    { id:'n7', type:'process', label:'Print MPOD & Obtain Sign-offs', cx:250, cy:754, w:220, h:50 },
+    { id:'end', type:'terminal', label:'END', cx:250, cy:848, w:100, h:40 },
+  ], edges: [
+    {f:'start',t:'n1',k:'dn'},{f:'n1',t:'n2',k:'dn'},{f:'n2',t:'n3',k:'dn'},
+    {f:'n3',t:'n4',k:'dn',lb:'Yes'},{f:'n3',t:'n2',k:'lp',lb:'No'},
+    {f:'n4',t:'n5',k:'dn'},{f:'n5',t:'n6',k:'dn'},{f:'n6',t:'n7',k:'dn'},{f:'n7',t:'end',k:'dn'},
+  ]},
+};
+
+// ─── 3 FLOWCHART TEMPLATES ───────────────────────────────
+const FLOW_DEFS = [
+  { h: 720, nodes: [
+    { id:'start', type:'terminal', label:'START', cx:250, cy:52, w:100, h:40 },
+    { id:'n1', type:'process', label:'Initiate & Log Request', cx:250, cy:158, w:220, h:50 },
+    { id:'n2', type:'sap', label:'SAP: Open Transaction', cx:250, cy:268, w:220, h:50 },
+    { id:'n3', type:'process', label:'Enter Document Data', cx:250, cy:378, w:220, h:50 },
+    { id:'n4', type:'decision', label:'Data Valid?', cx:250, cy:480, r:68 },
+    { id:'n5', type:'sap', label:'SAP: Post & Save Record', cx:250, cy:590, w:220, h:50 },
+    { id:'end', type:'terminal', label:'END', cx:250, cy:692, w:100, h:40 },
+  ], edges: [
+    {f:'start',t:'n1',k:'dn'},{f:'n1',t:'n2',k:'dn'},{f:'n2',t:'n3',k:'dn'},
+    {f:'n3',t:'n4',k:'dn'},{f:'n4',t:'n5',k:'dn',lb:'Yes'},{f:'n4',t:'n3',k:'lp',lb:'No'},{f:'n5',t:'end',k:'dn'},
+  ]},
+  { h: 700, nodes: [
+    { id:'start', type:'terminal', label:'START', cx:250, cy:52, w:100, h:40 },
+    { id:'n1', type:'process', label:'Check Prerequisites', cx:250, cy:155, w:220, h:50 },
+    { id:'n2', type:'process', label:'Execute Procedure', cx:250, cy:260, w:220, h:50 },
+    { id:'n3', type:'decision', label:'Approved?', cx:250, cy:360, r:68 },
+    { id:'n4', type:'sap', label:'SAP: Update Records', cx:250, cy:465, w:220, h:50 },
+    { id:'n5', type:'process', label:'Notify & Close', cx:250, cy:570, w:220, h:50 },
+    { id:'end', type:'terminal', label:'END', cx:250, cy:670, w:100, h:40 },
+  ], edges: [
+    {f:'start',t:'n1',k:'dn'},{f:'n1',t:'n2',k:'dn'},{f:'n2',t:'n3',k:'dn'},
+    {f:'n3',t:'n4',k:'dn',lb:'Yes'},{f:'n3',t:'n2',k:'lp',lb:'No'},{f:'n4',t:'n5',k:'dn'},{f:'n5',t:'end',k:'dn'},
+  ]},
+  { h: 720, nodes: [
+    { id:'start', type:'terminal', label:'START', cx:250, cy:52, w:100, h:40 },
+    { id:'n1', type:'process', label:'Receive Documentation', cx:250, cy:158, w:220, h:50 },
+    { id:'n2', type:'process', label:'Verify & Validate', cx:250, cy:265, w:220, h:50 },
+    { id:'n3', type:'sap', label:'SAP: System Validation', cx:250, cy:375, w:220, h:50 },
+    { id:'n4', type:'decision', label:'Records Complete?', cx:250, cy:478, r:68 },
+    { id:'n5', type:'sap', label:'SAP: Finalize & Close', cx:250, cy:588, w:220, h:50 },
+    { id:'end', type:'terminal', label:'END', cx:250, cy:692, w:100, h:40 },
+  ], edges: [
+    {f:'start',t:'n1',k:'dn'},{f:'n1',t:'n2',k:'dn'},{f:'n2',t:'n3',k:'dn'},{f:'n3',t:'n4',k:'dn'},
+    {f:'n4',t:'n5',k:'dn',lb:'Yes'},{f:'n4',t:'n2',k:'lp',lb:'No'},{f:'n5',t:'end',k:'dn'},
+  ]},
+];
+
+function _pt(node, side) {
+  if (node.type === 'decision') {
+    if (side==='top')    return [node.cx, node.cy - node.r];
+    if (side==='bottom') return [node.cx, node.cy + node.r];
+    if (side==='left')   return [node.cx - node.r, node.cy];
+  }
+  const hw = (node.w||100)/2, hh = node.h/2;
+  if (side==='top')    return [node.cx, node.cy - hh];
+  if (side==='bottom') return [node.cx, node.cy + hh];
+  if (side==='left')   return [node.cx - hw, node.cy];
+  return [node.cx, node.cy];
+}
+
+function FlowChart({ sopNum, activeNodeId, onNodeClick }) {
+  const def = SOP_FLOW_OVERRIDES[sopNum] || FLOW_DEFS[(sopNum - 1) % 3];
+  const { nodes, edges, h } = def;
+  const byId = id => nodes.find(n => n.id === id);
+
+  const renderEdge = (e, i) => {
+    const fn = byId(e.f), tn = byId(e.t);
+    if (!fn||!tn) return null;
+    let d, lx, ly, anchor = 'start';
+    if (e.k === 'dn') {
+      const [x1,y1] = _pt(fn,'bottom'), [x2,y2] = _pt(tn,'top');
+      d = `M${x1} ${y1} L${x2} ${y2}`;
+      lx = x1+8; ly = (y1+y2)/2;
+    } else {
+      const [x1,y1] = _pt(fn,'left'), [x2,y2] = _pt(tn,'left');
+      d = `M${x1} ${y1} L36 ${y1} L36 ${y2} L${x2} ${y2}`;
+      lx = 30; ly = (y1+y2)/2; anchor = 'end';
+    }
+    return (
+      <g key={i}>
+        <path d={d} stroke="#94A3B8" strokeWidth="1.5" fill="none" markerEnd="url(#arr)"/>
+        {e.lb && <text x={lx} y={ly} fontSize="11" fill="#64748B" textAnchor={anchor} dominantBaseline="middle" fontFamily="DM Sans,sans-serif" fontWeight="500">{e.lb}</text>}
+      </g>
+    );
+  };
+
+  const renderNode = n => {
+    const act = activeNodeId === n.id;
+    const clickable = n.type==='sap'||n.type==='process';
+    const click = clickable ? ()=>onNodeClick(n) : undefined;
+
+    if (n.type === 'terminal') return (
+      <g key={n.id}>
+        <ellipse cx={n.cx} cy={n.cy} rx={n.w/2} ry={n.h/2} fill={_B}/>
+        <text x={n.cx} y={n.cy} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="700" fill="white" fontFamily="DM Sans,sans-serif" letterSpacing="1.5">{n.label}</text>
+      </g>
+    );
+    if (n.type === 'decision') {
+      const pts = `${n.cx},${n.cy-n.r} ${n.cx+n.r},${n.cy} ${n.cx},${n.cy+n.r} ${n.cx-n.r},${n.cy}`;
+      return (
+        <g key={n.id}>
+          <polygon points={pts} fill={act?'#FEF3C7':'#FFFBEB'} stroke="#F59E0B" strokeWidth="2"/>
+          <text x={n.cx} y={n.cy} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="600" fill="#78350F" fontFamily="DM Sans,sans-serif">{n.label}</text>
+        </g>
+      );
+    }
+    const sc = act?_A:_B, sw = n.type==='sap'?(act?3:2.5):(act?2:1.5);
+    const fill = act?'#D6EEFF':n.type==='sap'?'#EBF3FF':'#EEF2FF';
+    return (
+      <g key={n.id} onClick={click} style={{
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'filter 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        filter: 'drop-shadow(0 0 0 rgba(25, 174, 255, 0))',
+      }}
+      onMouseEnter={clickable ? (e) => { e.currentTarget.style.filter = 'drop-shadow(0 3px 8px rgba(0, 51, 128, 0.2))'; e.currentTarget.style.transform = 'translateY(-1px)'; } : undefined}
+      onMouseLeave={clickable ? (e) => { e.currentTarget.style.filter = 'drop-shadow(0 0 0 rgba(25, 174, 255, 0))'; e.currentTarget.style.transform = 'translateY(0)'; } : undefined}>
+        <rect x={n.cx-n.w/2} y={n.cy-n.h/2} width={n.w} height={n.h} rx={n.type==='sap'?3:6} fill={fill} stroke={sc} strokeWidth={sw}/>
+        {act && <rect x={n.cx-n.w/2-6} y={n.cy-n.h/2-6} width={n.w+12} height={n.h+12} rx={n.type==='sap'?5:8} fill="none" stroke={_A} strokeWidth="2" strokeDasharray="8 8" style={{animation: 'node-active-ring 1s cubic-bezier(0.16, 1, 0.3, 1) infinite'}} />}
+        {n.type==='sap' && <>
+          <rect x={n.cx+n.w/2-28} y={n.cy-n.h/2} width={28} height={14} fill={act?_A:_B}/>
+          <text x={n.cx+n.w/2-14} y={n.cy-n.h/2+9} textAnchor="middle" fontSize="8" fontWeight="700" fill="white" fontFamily="DM Sans,sans-serif" letterSpacing="0.5">SAP</text>
+        </>}
+        <text x={n.cx} y={n.cy} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight={n.type==='sap'?'700':'600'} fill={act?'#0066CC':_B} fontFamily="DM Sans,sans-serif">{n.label}</text>
+      </g>
+    );
+  };
+
+  const legend = [
+    { el: <ellipse cx="11" cy="8" rx="11" ry="8" fill={_B}/>, label:'Start / End', w:22,h:16 },
+    { el: <rect x="0" y="0" width="24" height="14" rx="5" fill="#EEF2FF" stroke={_B} strokeWidth="1.5"/>, label:'Process Task', w:24,h:14 },
+    { el: <><rect x="0" y="0" width="24" height="14" rx="3" fill="#EBF3FF" stroke={_B} strokeWidth="2.5"/><rect x="16" y="0" width="8" height="8" fill={_B}/><text x="20" y="6" textAnchor="middle" fontSize="5" fontWeight="700" fill="white">SAP</text></>, label:'SAP System Step', w:24,h:14 },
+    { el: <polygon points="12,0 22,8 12,16 2,8" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="2"/>, label:'Decision Gate', w:24,h:16 },
+    { el: <rect x="0" y="0" width="24" height="14" rx="5" fill="#D6EEFF" stroke={_A} strokeWidth="2"/>, label:'Active Node', w:24,h:14 },
+  ];
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'100%',overflow:'hidden'}}>
+      <div style={{flex:1,overflowY:'auto',padding:'20px 16px 8px'}}>
+        <svg viewBox={`0 0 500 ${h}`} width="100%" style={{maxWidth:480,display:'block',margin:'0 auto'}}>
+          <defs>
+            <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+              <polygon points="0 0,7 3.5,0 7" fill="#94A3B8"/>
+            </marker>
+          </defs>
+          {edges.map((e,i)=>renderEdge(e,i))}
+          {nodes.map(n=>renderNode(n))}
+        </svg>
+      </div>
+      <div style={{borderTop:'1px solid #E5E7EB',padding:'10px 20px',background:'#FAFBFC',flexShrink:0}}>
+        <div style={{fontSize:9,fontWeight:700,color:'#9CA3AF',letterSpacing:'1px',textTransform:'uppercase',marginBottom:7}}>LEGEND</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:'6px 20px'}}>
+          {legend.map(({el,label,w,h:lh},i)=>(
+            <div key={i} style={{display:'flex',alignItems:'center',gap:7}}>
+              <svg width={w} height={lh} style={{flexShrink:0}}>{el}</svg>
+              <span style={{fontSize:10,color:'#6B7280',fontFamily:'DM Sans,sans-serif',whiteSpace:'nowrap'}}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SAP MOCKUP ──────────────────────────────────────────
+function SAPMockup({ node }) {
+  if (node?.img) {
+    return (
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',padding:'8px',background:'#F0F0F0'}}>
+        <img src={node.img} alt={node.label||'SAP Preview'} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',borderRadius:'4px',display:'block'}} />
+      </div>
+    );
+  }
+
+  const lbl = (node?.label||'').toLowerCase();
+  const tcode = lbl.includes('post')||lbl.includes('save')?'MIGO':lbl.includes('valid')?'ME23N':lbl.includes('final')||lbl.includes('close')?'F-02':lbl.includes('update')?'MM60':'MB01';
+  return (
+    <div style={{fontFamily:'Arial,sans-serif',background:'#D4D0C8',border:'1px solid #808080',display:'flex',flexDirection:'column',height:'100%',overflow:'hidden',fontSize:11}}>
+      <div style={{background:'#003380',color:'white',padding:'4px 10px',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+        <span style={{fontWeight:700,letterSpacing:.5}}>SAP ECC 6.0 · Reliance Retail</span>
+        <span style={{fontSize:9,opacity:.7}}>RRVL · Production Client</span>
+      </div>
+      <div style={{background:'#C0C0C0',display:'flex',padding:'1px 4px',borderBottom:'1px solid #808080',flexShrink:0}}>
+        {['System','Edit','View','Favorites','Extras','Help'].map(m=>(
+          <span key={m} style={{padding:'2px 8px',cursor:'default',fontSize:11}}>{m}</span>
+        ))}
+      </div>
+      <div style={{background:'#D4D0C8',display:'flex',alignItems:'center',gap:4,padding:'3px 8px',borderBottom:'1px solid #808080',flexShrink:0}}>
+        {['◀','▶','✕','💾','🖨','🔍'].map((ic,i)=>(
+          <button key={i} style={{background:'#C0C0C0',border:'1px outset #999',padding:'1px 3px',fontSize:9,cursor:'pointer',minWidth:20,height:18}}>{ic}</button>
+        ))}
+        <div style={{width:1,height:16,background:'#999',margin:'0 4px'}}/>
+        <span style={{fontSize:11}}>Transaction:</span>
+        <input readOnly value={tcode} style={{background:'#FFF',border:'2px inset #999',padding:'1px 4px',width:68,fontSize:12,fontFamily:'Courier New',color:'#003380',fontWeight:700}}/>
+        <button style={{background:'#C0C0C0',border:'1px outset #999',padding:'1px 8px',fontSize:11,cursor:'pointer',fontWeight:700}}>✓</button>
+      </div>
+      <div style={{background:'#F0F0F0',flex:1,padding:'8px',overflow:'auto'}}>
+        <div style={{background:'#003380',color:'white',padding:'3px 8px',fontSize:12,fontWeight:700,marginBottom:8}}>{node?.label||'SAP System Entry'}</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'3px 10px',marginBottom:8}}>
+          {[['Document Date','21.05.2026'],['Posting Date','21.05.2026'],['Company Code','RRVL'],['Reference','TRIP-2026-0421'],['Plant','PUN1 — Pune Store'],['Storage Loc.','0001 — Main Stock']].map(([l,v])=>(
+            <div key={l} style={{display:'flex',alignItems:'center',gap:3}}>
+              <span style={{fontSize:10,color:'#444',minWidth:88,flexShrink:0}}>{l}:</span>
+              <input readOnly value={v} style={{background:'#FFF',border:'1px inset #999',padding:'1px 3px',flex:1,fontSize:10,fontFamily:'Courier New'}}/>
+            </div>
+          ))}
+        </div>
+        <div style={{border:'1px solid #999',background:'white',marginBottom:8}}>
+          <div style={{background:'#003380',color:'white',display:'grid',gridTemplateColumns:'36px 1fr 64px 42px 80px',fontSize:10,fontWeight:700}}>
+            {['Itm','Material / Description','Qty','UoM','Amt (₹)'].map(h=>(
+              <div key={h} style={{padding:'3px 5px',borderRight:'1px solid rgba(255,255,255,0.2)'}}>{h}</div>
+            ))}
+          </div>
+          {[['001','FASH-2024-SHIRT-BLK','50','EA','12,500'],['002','FASH-2024-DENIM-32','30','EA','22,800'],['003','FOOT-2024-SPORT-09','25','PR','37,500']].map((row,i)=>(
+            <div key={i} style={{display:'grid',gridTemplateColumns:'36px 1fr 64px 42px 80px',fontSize:10,fontFamily:'Courier New',background:i===0?'#EAF4FF':'white',borderTop:'1px solid #DDD'}}>
+              {row.map((c,j)=><div key={j} style={{padding:'3px 5px',borderRight:'1px solid #E5E7EB'}}>{c}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',marginBottom:8}}>
+          <div style={{background:'#F8F8F8',border:'1px solid #CCC',padding:'3px 10px',fontSize:11,fontFamily:'Courier New'}}><b>Total: </b>₹ 72,800.00</div>
+        </div>
+        <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:8}}>
+          {[{l:'Post (F11)',p:true},{l:'Check (F5)'},{l:'Cancel (F12)'}].map(({l,p})=>(
+            <button key={l} style={{background:p?'#003380':'#C0C0C0',color:p?'white':'#333',border:'1px outset #999',padding:'3px 10px',fontSize:11,cursor:'pointer',fontWeight:p?700:400}}>{l}</button>
+          ))}
+        </div>
+        <div style={{background:'#E0E0E0',border:'1px inset #999',padding:'2px 8px',fontSize:10,color:'#555',fontFamily:'Courier New'}}>
+          ✓ Ready · Session: RRVL-0042 · User: STORE_MGR_01
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── HELPERS ──────────────────────────────────────────────
+function genSteps(sopName, procName, sopNum) {
+  if (sopNum === 1) return [
+    'DC/Hub/Express Vehicle reports at store. Delivery person hands over: Trip Sheet, E-Waybill, Consignment Note, HU Numbers Sheet, and STN Copy to STORE ADMINISTRATIVE ASSOCIATE / LPA.',
+    'BOH & STORE ADMIN/LPA check the Trip Sheet — verify that the receiving site code and details match both the Trip and STN Copy. Check E-Way Bill validity; if expired, do NOT unload stock.',
+    'During unloading, validate each HU sticker one by one. Tick off each HU number on the HU Dispatch Sheet as it is unloaded. Only unload HUs that belong to this store for the current Trip.',
+    'If any HU is received short, damaged, open, or wet — circle that HU number on the HU Dispatch Sheet. Record all short/damaged/wet HU details in the TPOD report before the transporter leaves.',
+    'Once unloading is complete, immediately print 2 copies of TPOD. Obtain signatures from BOH Executive, STORE ADMIN/LPA, and Transporter. Hand one copy to the transporter; retain the other with GRN documents.',
+    'For Apparel-only Trip: select "Qty = 1" and scan each piece individually. For mixed Trips (Apparel + Consumables): complete Apparel scanning first, then press Back and select "Qty = Variant" for Consumables.',
+    'For Ratio Packs: scan only the master barcode on the outer pack — do not open the pack for counting. Record any Not Received / Short Received articles for the Wall-to-Wall PI (W2W PI) with the IAC Team.',
+    'Short qty ≤ 10 pcs: BOH Executive informs LPA/STORE ADMIN before consignment moves to floor. Short qty > 10 pcs: CM/ALPO must be informed; STORE ADMIN/LPA physically checks HU and merchandise count.',
+    'Post GRN in SAP immediately after scanning is complete — within 24 hours of unloading. Merchandise must NOT be moved to the floor until GRN is posted and MPOD is printed and signed.',
+    'Print MPOD. Obtain signatures from Senior BOH Executive and STORE ADMIN/LPA. Ensure all merchandise moved to the shop floor is tagged (hard/soft). SM/DM to update tagging registers.',
+  ];
+  const n = (sopName||'').toLowerCase(), p = (procName||'').toLowerCase();
+  if (n.includes('sap')||n.includes('grn')||n.includes('inward')||n.includes('tpod')) return [
+    'Collect and verify all physical documents: invoice, delivery challan, and PO copy.',
+    'Log into SAP using your Store Manager credentials (T-Code as per this SOP).',
+    'Navigate to the relevant module and open the transaction screen.',
+    'Enter header fields: Document Date, Company Code (RRVL), Plant, and Reference.',
+    'Scan or manually enter all material codes, quantities, and unit prices.',
+    'Cross-verify totals against the physical invoice — flag any discrepancy.',
+    'Click "Post" to generate the Material Document number in SAP.',
+    'Print TPOD / GRN confirmation and file with the original invoice.',
+  ];
+  if (n.includes('cash')||n.includes('pos')||n.includes('billing')||n.includes('cashier')) return [
+    'Open POS terminal and log in with your Cashier ID and 4-digit PIN.',
+    'Scan all customer items and verify descriptions on screen.',
+    'Apply valid promotional codes, loyalty discounts, or employee purchase entitlements.',
+    'Confirm the MOP (Mode of Payment): cash, card, UPI, or gift voucher.',
+    'Process payment and wait for payment gateway confirmation.',
+    'Issue customer receipt and exchange policy acknowledgement.',
+    'Reconcile cashier float at end of shift and deposit to drop safe.',
+  ];
+  if (p.includes('people')||p.includes('recruit')||p.includes('l&d')||n.includes('staff')) return [
+    'Collect all joining documents: ID proof, address proof, educational certificates, and photographs.',
+    'Create the employee profile in the HR portal with all mandatory fields.',
+    'Assign store code, role designation, and reporting manager.',
+    'Schedule and complete all Day-1 mandatory training modules.',
+    'Issue store access card, uniform allocation, and locker assignment.',
+    'Enroll biometric attendance and POS system access rights.',
+    'File all physical documents in the employee docket with proper indexing.',
+  ];
+  if (n.includes('maintenance')||n.includes('facility')||n.includes('housekeeping')) return [
+    'Review the maintenance checklist and confirm scope with Store Manager.',
+    'Obtain written authorization before initiating any structural activity.',
+    'Arrange required materials, equipment, and personnel as per the plan.',
+    'Execute the maintenance task as per the defined procedure.',
+    'Conduct a post-work inspection and verify completion criteria are met.',
+    'Update the maintenance log with date, time, and employee IDs.',
+    'Report any exceptions or pending items to the Operations Manager.',
+  ];
+  if (p.includes('vm')||n.includes('visual')||n.includes('mannequin')||n.includes('signage')) return [
+    'Review the current VM layout against the latest planogram guidelines.',
+    'Source all required props, fixtures, and merchandise from the BOH.',
+    'Clear the designated zone and prepare surfaces as per VM standards.',
+    'Execute the display as per planogram — photograph key angles.',
+    'Check signage placement, pricing accuracy, and brand compliance.',
+    'Obtain SM sign-off using the VM checklist before opening.',
+    'Upload completion photographs to the VM compliance portal.',
+  ];
+  return [
+    'Review the SOP checklist and confirm all prerequisites are in place.',
+    'Obtain mandatory approvals from the Store Manager before proceeding.',
+    'Execute each step methodically — do not skip or reorder tasks.',
+    'Document all actions with date, time, and employee ID in the logbook.',
+    'Verify output against the expected result or acceptance criteria.',
+    'Update all relevant registers, logs, and SAP records with completion status.',
+    'Report any deviations or exceptions immediately to the Store Manager.',
+  ];
+}
+
+// Build flat SOP list for search
+let ALL_SOPS = [];
+SOP_DATA.forEach(fn => {
+  fn.processes.forEach(proc => {
+    proc.topics.forEach(topic => {
+      topic.subtopics.forEach(sub => {
+        ALL_SOPS.push({ ...sub, fn, proc, topic });
+      });
+    });
+  });
+});
+
+// ─── HEADER ───────────────────────────────────────────────
+function Header({ view, fn, proc, topic, onNav, onSearch }) {
+  const segs = [{ label:'Home', key:'home' }];
+  if (fn) segs.push({ label: fn.name, key:'processes' });
+  if (proc) segs.push({ label: proc.name, key:'topics' });
+  if (topic) segs.push({ label: topic.name, key:'topic' });
+
+  return (
+    <div className="hdr">
+      <div className="logo" onClick={()=>onNav('home')}>
+        <img src="uploads/pasted-1779385848594-0.png" alt="Reliance Retail" style={{height:'36px',width:'auto',display:'block'}} />
+      </div>
+      <div className="bc">
+        {segs.map((seg,i)=>(
+          <React.Fragment key={seg.key}>
+            {i>0 && <span className="bc-sep">›</span>}
+            <span className={`bc-seg${i===segs.length-1?' cur':''}`} onClick={()=>i<segs.length-1&&onNav(seg.key)} style={seg.key === 'processes' ? { viewTransitionName: 'bc-fn-morph' } : seg.key === 'topics' ? { viewTransitionName: 'bc-proc-morph' } : undefined}>{seg.label}</span>
+          </React.Fragment>
+        ))}
+      </div>
+      <button className="srch-btn" onClick={onSearch}>
+        <span>🔍</span>
+        <span>Search Playbook…</span>
+        <span className="kbd">Ctrl+K</span>
+      </button>
+    </div>
+  );
+}
+
+// ─── HOME VIEW ────────────────────────────────────────────
+function HomeView({ fn, onSelect }) {
+  return (
+    <div className="view">
+      <div className="home">
+        <h1 className="home-ttl">Standard Operating Procedures Directory</h1>
+        <p className="home-sub">Select an operational function below to inspect specific processing flowcharts.</p>
+        <div className="fn-grid">
+          {SOP_DATA.map(item=>(
+            <div key={item.id} className="fn-card" onClick={e => onSelect(item, e.currentTarget)}>
+              <div className="fn-card-hdr">
+                <span className="pillar-lbl">Function {item.pillar}</span>
+                <span className="sop-chip">{item.sopCount} SOPs</span>
+              </div>
+              <div className="fn-name" style={{ viewTransitionName: (fn && fn.id === item.id) ? 'bc-fn-morph' : undefined }}>{item.name}</div>
+              <div className="fn-desc">{item.description}</div>
+              <div className="fn-divider"></div>
+              <div style={{display:'flex',justifyContent:'flex-end',paddingTop:6}}>
+                <span style={{fontSize:11,color:'var(--blue)',fontWeight:600}}>Explore → </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PROCESS VIEW ─────────────────────────────────────────
+function ProcessView({ fn, proc, onSelect, barMorph }) {
+  const totalProcs = fn.processes.length;
+  return (
+    <div className="view pv">
+      <div className="fn-hdr" style={barMorph ? { viewTransitionName: 'active-header-morph' } : undefined}>
+        <div>
+          <div style={{fontSize:11,opacity:.6,fontWeight:600,letterSpacing:'1px',textTransform:'uppercase',marginBottom:4}}>Pillar {fn.pillar}</div>
+          <div className="fn-hdr-name">{fn.name}</div>
+          <div className="fn-hdr-meta">{totalProcs} Processes · {fn.sopCount} Standard Operating Procedures</div>
+        </div>
+        <div className="fn-hdr-badge">{fn.sopCount} SOPs</div>
+      </div>
+      <div className="proc-body">
+        <div style={{fontSize:12,color:'var(--muted)',marginBottom:18}}>Select a process to drill into its topics and subtopic flowcharts.</div>
+        <div className="proc-grid">
+          {fn.processes.map(item=>{
+            const count = item.topics.reduce((a,t)=>a+t.subtopics.length,0);
+            return (
+              <div key={item.name} className="proc-card"
+                onClick={e=>onSelect(item,e.currentTarget)}>
+                <div className="proc-card-hdr">
+                  <div className="proc-name" style={{ viewTransitionName: (proc && proc.name === item.name) ? 'bc-proc-morph' : undefined }}>{item.name}</div>
+                  <span className="proc-count">{count} SOPs</span>
+                </div>
+                <div className="proc-topics">
+                  {item.topics.slice(0,3).map(t=>(
+                    <div key={t.name} className="proc-topic-pill">· {t.name}</div>
+                  ))}
+                  {item.topics.length>3 && <div className="proc-topic-pill" style={{color:'var(--accent)'}}>+ {item.topics.length-3} more topics</div>}
+                </div>
+                <div className="proc-arrow">→</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TOPIC VIEW ───────────────────────────────────────────
+function TopicView({ fn, proc, sop, onSelectSOP, barMorph }) {
+  const [activeTopic, setActiveTopic] = useState(proc.topics[0]?.name || null);
+  const subs = proc.topics.find(t=>t.name===activeTopic)?.subtopics || [];
+  const count = proc.topics.reduce((a,t)=>a+t.subtopics.length,0);
+
+  return (
+    <div className="view tv">
+      {/* fn-hdr stays stable — matches ProcessView fn-hdr */}
+      <div className="fn-hdr" style={{padding:'12px 32px', ...(barMorph ? { viewTransitionName: 'active-header-morph' } : {})}}>
+        <div>
+          <div style={{fontSize:11,opacity:.6,fontWeight:600,letterSpacing:'1px',textTransform:'uppercase',marginBottom:3}}>Pillar {fn.pillar}</div>
+          <div className="fn-hdr-name" style={{fontSize:18}}>{fn.name}</div>
+        </div>
+        <div className="fn-hdr-badge">{fn.sopCount} SOPs</div>
+      </div>
+      {/* proc-hdr morphs from the clicked proc-card */}
+      <div className="proc-hdr">
+        <div className="proc-hdr-name">{proc.name}</div>
+        <span className="proc-hdr-count">{count} SOPs</span>
+      </div>
+      <div className="pills-row-wrap">
+        <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:10,letterSpacing:.3}}>SELECT TOPIC</div>
+        <div className="pills-row">
+          {proc.topics.map(t=>(
+            <button key={t.name} className={`pill${activeTopic===t.name?' active':''}`} onClick={()=>setActiveTopic(t.name)}>
+              <span>{t.name}</span>
+              <span className="pill-cnt">{t.subtopics.length}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="subs-body">
+        <div style={{fontSize:13,fontWeight:600,color:'var(--blue)',marginBottom:16}}>{activeTopic} <span style={{color:'var(--muted)',fontWeight:400,fontSize:12}}>— {subs.length} SOPs</span></div>
+        <div className="subs-grid">
+          {subs.map(sub=>(
+            <div key={sub.sopNum} className="sub-card" onClick={e=>onSelectSOP(sub, proc.topics.find(t=>t.name===activeTopic), proc, e.currentTarget)}>
+              <div><span className="sub-badge">SOP {String(sub.sopNum).padStart(3,'0')}</span></div>
+              <div className="sub-name" style={{ viewTransitionName: (sop && sop.sopNum === sub.sopNum) ? 'bc-sop-morph' : undefined }}>{sub.name}</div>
+              <div className="sub-arrow">Open Flowchart →</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── RICH NODE CONTENT ENGINE ────────────────────────────
+function getRichNodeContent(node, sopName, procName, sopNum) {
+  // ── SOP 001 SPECIFIC NODE CONTENT ────────────────────
+  if (sopNum === 1) {
+    if (node.label === 'DC Vehicle Reports at Store') return {
+      role: 'BOH Executive / STORE ADMINISTRATIVE ASSOCIATE / LPA',
+      guidelines: [
+        'DC/Hub/Express Vehicle arrives at the store loading bay.',
+        'Delivery person hands over: Trip Sheet, E-Waybill, Consignment Note, HU Numbers Sheet, and STN Copy.',
+        'Immediately inform the Manager on Duty (MOD) and Senior BOH Executive of the delivery.',
+        'Do not allow unloading to begin until all documents are received and verified.',
+        'Log arrival time and vehicle number in the BOH Inward Register.',
+      ],
+      notes: ['Check E-Way Bill validity before any unloading begins. Expired E-Waybill = stock must NOT be unloaded.'],
+    };
+    if (node.label === 'Verify Documents & Site Code') return {
+      role: 'BOH Executive / STORE ADMINISTRATIVE ASSOCIATE / LPA',
+      guidelines: [
+        'For DC Delivery — verify all five documents: Trip Sheet, STN Copy, Consignment/LR No., E-Waybill + E-Invoice, and HU Numbers Sheet.',
+        'For IST Delivery — verify: STN, Consignment/LR No., E-Way Bill, and E-Invoice.',
+        'Cross-check receiving store site code on the HU Sticker and Trip Sheet against your store code.',
+        'Confirm STN Copy matches the Trip Sheet — both must reflect the same delivery event.',
+        'Validate HU Numbers Sheet — confirm HU count on sheet is consistent with physical HUs on the vehicle.',
+      ],
+      notes: ['Do not unload any HU pertaining to a previous Trip, or any HU belonging to another store.'],
+    };
+    if (node.label === 'Unload & Validate HU Stickers') return {
+      role: 'BOH Executive / STORE ADMINISTRATIVE ASSOCIATE / LPA',
+      guidelines: [
+        'Validate each HU sticker as it is unloaded — tick corresponding HU number on HU Dispatch Sheet one by one.',
+        'Unload only HUs that belong to this store against the current Trip — no exceptions.',
+        'Circle any HU number on the sheet if that HU is received short, damaged, open, or wet.',
+        'Record all short/damaged/wet HU details in the TPOD report before the transporter departs.',
+        'For Ratio Packs: scan only the master barcode on the outer pack — do NOT open for counting.',
+        'Merchandise must remain inside HUs until GRN is posted in SAP and MPOD is signed.',
+      ],
+      notes: [
+        'Transporter must NOT leave the store without a TPOD signed by STORE ADMIN/LPA, BOH Executive, and Transporter.',
+        'Cluster Head is accountable for any malpractice involving undue GRN reversals.',
+      ],
+    };
+    if (node.label === 'Print & Sign TPOD (2 Copies)') return {
+      role: 'BOH Executive / STORE ADMINISTRATIVE ASSOCIATE / LPA + Transporter',
+      guidelines: [
+        'Immediately after unloading is complete, print 2 copies of the TPOD.',
+        'TPOD must clearly document: short, damaged, and wet HU details.',
+        'Obtain signatures on both copies from: BOH Executive, STORE ADMIN/LPA, and Transporter.',
+        'Hand one signed TPOD copy to the Transporter — retain the second copy with all GRN documents.',
+        'TPOD acknowledgement by the transporter is mandatory for ALL DC and IST deliveries.',
+        'Select all three options in system: Receiving Site Executive sign done, STORE ADMIN/LPA sign done, Driver sign done — then click Save.',
+      ],
+      notes: ['The TPOD acknowledgement serves as proof that the consignment was delivered to the store by the Transporter.'],
+    };
+    if (node.label === 'Print MPOD & Obtain Sign-offs') return {
+      role: 'Senior BOH Executive / STORE ADMINISTRATIVE ASSOCIATE / LPA',
+      guidelines: [
+        'Print the MPOD (Merchandise Proof of Document) copy after GRN is posted in SAP.',
+        'Both Senior BOH Executive AND STORE ADMIN/LPA must sign the MPOD before stock moves to floor.',
+        'Short qty ≤ 10 pcs: BOH informs LPA/STORE ADMIN for confirmation before moving consignment to floor.',
+        'Short qty > 10 pcs in a single consignment: CM/ALPO must be informed; LPA physically checks HU and merchandise count; MPOD signed jointly.',
+        'For Ratio Packs: even if one pack is short — STORE ADMIN/LPA must be informed for verification before MPOD sign-off.',
+        'Ensure ALL merchandise moved to the shop floor is tagged (hard/soft tag as applicable). SM/DM to update tagging registers.',
+      ],
+      notes: [
+        'SM/DM is responsible for monitoring hard and soft tagging in BOH. Stock must NOT go to FOH until tagging is complete.',
+        'ALPO/ALPM to check for untagged merchandise during store visits and report deviations to SM, CM, and SLP TH via email.',
+      ],
+    };
+  }
+  const s = (sopName||'').toLowerCase(), p = (procName||'').toLowerCase();
+  const isCash = p.includes('cash')||s.includes('cashier')||s.includes('pos');
+  const isPeople = p.includes('people')||p.includes('recruit')||p.includes('l&d')||p.includes('career');
+  const isVM = p.includes('vm')||s.includes('visual')||s.includes('mannequin')||s.includes('signage');
+  const isMaint = p.includes('maintenance')||s.includes('facility')||s.includes('housekeeping');
+  const role = isCash?'Cashier / Shift Supervisor':isPeople?'HR Executive / Store Manager':isVM?'VM Champion / Visual Merchandiser':isMaint?'Facility Manager / MOD Admin':'Store Manager / Dept. Head';
+
+  if (node.type==='sap') {
+    const lbl = node.label;
+    if (lbl.includes('Open Transaction')) {
+      const tcode=isCash?'F-02':isVM?'SE16':'MIGO';
+      return { role, tcode, module:tcode==='F-02'?'FI → Document Entry → General Posting':tcode==='SE16'?'Tools → ABAP Workbench → Table Browser':'MM → Inventory Management → Goods Movement',
+        output:'Transaction screen opens with correct authorization profile', guidelines:[
+        `Enter T-Code "${tcode}" in the SAP command field and press Enter (↵).`,
+        'Verify company code "RRVL" and plant (store code) are pre-populated correctly.',
+        'Confirm your user role has the required authorization object for this transaction.',
+        'If authorization error appears, raise a Service Desk ticket under Category: SAP Access.',
+        'Check transaction date range is within the open posting period.',
+      ], notes:['Never share SAP credentials — all actions are audit-logged by user ID and timestamp.']};
+    }
+    if (lbl.includes('Post')||lbl.includes('Save Record')) {
+      const tcode=isCash?'FB60':'MIGO';
+      return { role, tcode, module:tcode==='FB60'?'FI → Accounts Payable → Document Entry → Vendor Invoice':'MM → Inventory Management → Goods Movement → GR against PO/STO',
+        output:tcode==='FB60'?'Accounting Document Number posted (e.g. 1900012345)':'Material Document Number generated (e.g. 5000012345) + paired Accounting Document',
+        guidelines:[
+        'Review all entered data one final time — posting cannot be reversed without SM + Area Manager dual authorization.',
+        tcode==='MIGO'?'Verify Movement Type: 101 = GR against PO, 311 = Stock Transfer between SLocs.':'Confirm baseline date, payment terms, and gross amount match the physical tax invoice exactly.',
+        'Click "Check" (F5) to run system validation — all green lights required before posting.',
+        'Click "Post" (F11) to confirm. Note the Document Number displayed in the status bar.',
+        'Print GRN/posting confirmation and attach to the physical document for the monthly audit binder.',
+      ], notes:['Post within 24 hours of physical receipt to avoid SLA breach in the audit scorecard.','Document reversal requires dual authorization: Store Manager + Area Operations Manager.']};
+    }
+    if (lbl.includes('Update Records')) {
+      return { role, tcode:'MM60', module:'MM → Inventory Management → Reporting → Material Document List',
+        output:'System record updated; change log entry written with user ID and timestamp',
+        guidelines:[
+        'Navigate to the material/vendor record using the relevant master data code.',
+        'Update only the permitted fields — locked fields require MDM (Master Data) team approval.',
+        'Mandatory: enter a change reason text in the "Remarks" field for audit traceability.',
+        'Save (Ctrl+S) and verify the change log in the "Change Documents" tab reflects the update.',
+        'Notify the Store Manager via the store communication channel once update is confirmed.',
+      ], notes:['Mass record updates (>10 materials) require a pre-approved change request form.']};
+    }
+    if (lbl.includes('Validation')||lbl.includes('System Validation')) {
+      return { role, tcode:'ME23N', module:'MM → Purchasing → Purchase Order → Display Purchase Order',
+        output:'PO status confirmed — open quantity, validity, and price conditions verified',
+        guidelines:[
+        'Enter the PO number in the document number field and press Enter.',
+        'Navigate to "Delivery" tab — verify open quantities match the expected inward quantity.',
+        'Cross-check each line item material code and description against the physical challan.',
+        'Confirm plant (store code) and storage location "0001" are correctly assigned.',
+        'If quantities differ by >3%, halt inward process and contact the vendor immediately.',
+      ], notes:['Price tolerance: 0% deviation allowed. Quantity tolerance: ±3% per line item.']};
+    }
+    if (lbl.includes('Finalize')||lbl.includes('Close')) {
+      const tcode=isMaint?'IW32':'MIRO';
+      return { role, tcode, module:tcode==='IW32'?'PM → Maintenance Processing → Change Maintenance Order':'MM → Invoice Verification → Logistics Invoice Verification',
+        output:'Document closed and workflow status updated to "Completed" in SAP',
+        guidelines:[
+        `Open the document reference using T-Code ${tcode} and enter the document number.`,
+        'Set the processing status to "CLSD" (Closed) using the status dropdown.',
+        'Enter final completion remarks in the long text field — minimum 20 characters required.',
+        'Attach scanned copies of all physical documents using the GOS (Generic Object Services) attachment function.',
+        'Save and send the system-generated completion confirmation to relevant stakeholders.',
+      ], notes:['Closure is irreversible without Level 2 authorization. Double-check before confirming.']};
+    }
+  }
+
+  if (node.type==='decision') {
+    const lbl = node.label;
+    const approver=isPeople?'HR Manager / Area HR Head':isCash?'Store Manager / Area Commercial Manager':'Store Manager / Area Operations Manager';
+    if (lbl.includes('Valid')) return { role, isDecision:true,
+      criteria:['All mandatory SAP fields are populated with no blank entries.','Document quantities match physical count within ±0 unit tolerance.','No duplicate document reference exists (check via FB03 / MB03).','Tax codes and G/L accounts are correctly assigned per the chart of accounts.','Posting date falls within the current open accounting period.'],
+      yes:'All checks pass — proceed to SAP document posting.',no:'One or more checks failed — return to data entry and correct flagged errors.',
+      esc:`Same error persisting after 2 correction attempts → escalate to SAP Support via Service Desk.`,
+      notes:['All validation failures are auto-logged in SM-AP-01 SAP Exception Register.']};
+    if (lbl.includes('Approved')) return { role, isDecision:true,
+      criteria:[`Submission reviewed and approved by ${approver}.`,'All supporting documents attached to the digital approval request.','Compliance with the relevant company policy verified by the approver.',isPeople?'Approval processed via HCM portal within 48 hours of submission.':'Approval confirmed in writing (email/WhatsApp) with timestamp.','Approved documents filed in the month\'s operations folder with proper indexing.'],
+      yes:'Approval granted — proceed to SAP system update.',no:'Approval rejected — document the stated reasons, revise, and resubmit within 24 hours.',
+      esc:'No response within 48 hours — escalate to next level manager with original request attached.',
+      notes:['Verbal approvals are NOT valid — written confirmation is mandatory for audit compliance.']};
+    return { role, isDecision:true,
+      criteria:['All inputs verified against the defined acceptance criteria.','Documents are complete, accurate, and carry the required authorizations.','System entries match physical records within the defined tolerance limits.','Previous step outputs are confirmed correct before this gate decision.','Any observed exceptions have been documented in the operations logbook.'],
+      yes:'All criteria met — proceed to the next process step.',no:'Criteria not met — loop back to the correction step and re-validate.',
+      esc:'Recurring gate failures (>3 occurrences) must be reported to Area Manager within 24 hours.',
+      notes:[]};
+  }
+
+  // Process nodes
+  const lbl = node.label;
+  if (lbl.includes('Initiate')||lbl.includes('Log Request')) return { role, guidelines:[
+    'Confirm task scope and objective with the Store Manager before starting.',
+    isCash?'Verify opening float cash matches the previous shift closing balance.':isPeople?'Retrieve the employee file / new request form from the HR docket.':'Collect all physical documents from the supplier or courier and count items.',
+    'Log the initiation in the physical register: date, time, employee ID, and reference number.',
+    'Assign a unique tracking ID: [STORE CODE]-[PROC ABBR]-[DDMMYY]-[SEQUENCE].',
+    'Brief all involved team members and confirm their assigned roles for the task.',
+  ], notes:['Starting work without proper documentation logged is a Category B policy violation.']};
+
+  if (lbl.includes('Prerequisites')||lbl.includes('Check Prereq')) return { role, guidelines:[
+    'Verify all prerequisite conditions listed in the SOP checklist are fully satisfied.',
+    'Confirm your SAP user ID has active authorizations for all required transactions.',
+    isCash?'Check cashier denomination float sheet is balanced from the previous shift.':isVM?'Confirm all VM fixtures, props, and display materials are in the BOH and accounted for.':'Verify all required physical documents are present and carry appropriate signatures.',
+    'Ensure relevant personnel are present at the designated station and briefed.',
+    'Complete the pre-task safety/compliance checklist and get SM sign-off.',
+  ], notes:['Unmet prerequisites must be documented before proceeding — do not skip this gate.']};
+
+  if (lbl.includes('Enter')||lbl.includes('Document Data')) return { role, guidelines:[
+    'Use capital letters for all code fields; no special characters or trailing spaces.',
+    'Enter Document Date exactly as printed on the physical invoice/document.',
+    'Select Company Code "RRVL" and the correct Plant code for your store.',
+    'For each line item: enter Material Code → Quantity → UoM → Storage Location in sequence.',
+    'Cross-verify every entry against the physical document before proceeding to the next line.',
+    'If a material code is not found, raise an MDM request immediately — do not create manual entries.',
+  ], notes:['Do not copy-paste from previous documents. All entries must be freshly typed.','Session auto-timeout: 20 minutes. Save drafts (Ctrl+S) regularly to avoid data loss.']};
+
+  if (lbl.includes('Execute')||lbl.includes('Procedure')) return { role, guidelines:[
+    'Follow the task sequence strictly — no steps may be skipped or reordered without SM approval.',
+    isCash?'Process each customer transaction individually; no batch or bulk processing.':isVM?'Follow the approved planogram layout exactly — deviations require written VM Head approval.':isMaint?'Use only empanelled vendors listed in the approved vendor register — no ad-hoc contractors.':'Execute as per the defined SOP parameters and document any deviations immediately.',
+    'Maintain a real-time activity log with timestamps for each sub-step completed.',
+    'Perform a mid-task quality check at the 50% completion mark.',
+    'Photograph or scan output at each critical checkpoint as audit evidence.',
+  ], notes:['Unauthorized deviations from this SOP must be reported to the Store Manager within 2 hours.']};
+
+  if (lbl.includes('Verify')||lbl.includes('Validate')) return { role, guidelines:[
+    'Physical verification must be performed by a Dept. Head or above — self-verification is not permitted.',
+    'Compare all document details (codes, quantities, dates, amounts) against SAP system records.',
+    'Inspect for overages, shortages, or quality issues using the store inspection form.',
+    isCash?'Verify POS receipt matches cashier tally sheet and the bank deposit slip.':isPeople?'Verify employee ID, designation, and reporting structure are correctly reflected in the HR portal.':'Sign and date the verification form — both verifier and initiator signatures required.',
+    'Any discrepancy exceeding 0.5% of total value must be immediately reported to the Area Manager.',
+  ], notes:['Verification must be completed within 4 hours of document receipt. Delays attract audit flags.']};
+
+  if (lbl.includes('Receive Documentation')||lbl.includes('Receive')) return { role, guidelines:[
+    'Accept documents only from authorized sources listed in the SOP contact matrix.',
+    'Reject any document older than 7 calendar days from the document date — return to sender.',
+    'Check for completeness: all sections filled, signatures present, no blank mandatory fields.',
+    'Stamp the document with the store "RECEIVED" stamp showing date and time.',
+    'Scan and upload to the shared digital folder within 30 minutes of physical receipt.',
+    'Send a receipt acknowledgement to the sender via WhatsApp/email with timestamp.',
+  ], notes:['Original physical documents must be retained for a minimum of 3 financial years.']};
+
+  if (lbl.includes('Notify')||lbl.includes('Close')) return { role, guidelines:[
+    'Send completion notification to: Store Manager, Area Manager, and relevant department heads.',
+    'Include the final document reference numbers (SAP + physical) in the notification.',
+    'Update the physical operations logbook with "CLOSED" status and your employee ID.',
+    'Archive all physical documents in the designated monthly filing folder with proper index.',
+    'If it was a multi-person task, conduct a 5-minute close-out debrief with the team.',
+  ], notes:['Closure notifications must be sent within 1 hour of task completion.']};
+
+  return { role, guidelines:[
+    'Follow the defined SOP sequence strictly — no steps may be skipped.',
+    'Document each action with date, time, and employee ID in the logbook.',
+    'Verify output against the expected criteria before proceeding to next step.',
+    'Report any deviation or exception to the Store Manager immediately.',
+    'Update all relevant SAP records and physical registers upon completion.',
+  ], notes:[]};
+}
+
+// ─── NODE DETAIL PANEL ────────────────────────────────────
+function NodeDetailPanel({ node, sop, proc }) {
+  const c = getRichNodeContent(node, sop.name, proc.name, sop.sopNum);
+  const typeLabel = node.type==='sap'?'SAP TRANSACTION':node.type==='decision'?'DECISION GATE':'PROCESS STEP';
+  return (
+    <div className="ndp">
+      <div className={`ndp-type-badge ndp-type-${node.type}`}>{typeLabel}</div>
+      <div className="ndp-title">{node.label}</div>
+      <div className="ndp-meta"><span className="ndp-meta-lbl">Responsible</span><span className="ndp-meta-val">{c.role}</span></div>
+      {node.type==='sap' && <>
+        <div className="ndp-meta"><span className="ndp-meta-lbl">T-Code</span><code className="ndp-tcode">{c.tcode}</code></div>
+        <div className="ndp-meta"><span className="ndp-meta-lbl">SAP Path</span><span className="ndp-meta-val" style={{fontSize:11,color:'var(--muted)'}}>{c.module}</span></div>
+      </>}
+      {c.isDecision && <>
+        <div className="ndp-sec">GATE CRITERIA</div>
+        <div className="ndp-steps">{c.criteria.map((g,i)=>(
+          <div key={i} className="ndp-step"><div className="ndp-sn">{i+1}</div><span className="ndp-step-txt">{g}</span></div>
+        ))}</div>
+        <div className="ndp-sec">OUTCOME PATHS</div>
+        <div className="ndp-yes">✓ YES — {c.yes}</div>
+        <div className="ndp-no">✗ NO — {c.no}</div>
+        {c.esc && <div className="ndp-esc">⚠ Escalation: {c.esc}</div>}
+      </>}
+      {!c.isDecision && <>
+        <div className="ndp-sec">STEP GUIDELINES</div>
+        <div className="ndp-steps">{(c.guidelines||[]).map((g,i)=>(
+          <div key={i} className="ndp-step"><div className="ndp-sn">{i+1}</div><span className="ndp-step-txt">{g}</span></div>
+        ))}</div>
+        {node.type==='sap' && c.output && <><div className="ndp-sec">EXPECTED OUTPUT</div><div className="ndp-output">✓ {c.output}</div></>}
+      </>}
+      {c.notes && c.notes.map((n,i)=><div key={i} className="ndp-note">⚠ {n}</div>)}
+    </div>
+  );
+}
+
+// ─── INSTRUCTIONS PANEL ───────────────────────────────────
+function InstructionsPanel({ sop, proc, topic }) {
+  const steps = genSteps(sop.name, proc.name, sop.sopNum);
+  return (
+    <div className="instr-panel">
+      <div className="instr-sop-name">SOP {String(sop.sopNum).padStart(3,'0')}: {sop.name}</div>
+      <div className="instr-topic">{proc.name} › {topic.name}</div>
+      <div className="instr-steps">
+        {steps.map((s,i)=>(
+          <div key={i} className="instr-step">
+            <div className="step-num">{i+1}</div>
+            <div className="step-txt">{s}</div>
+          </div>
+        ))}
+      </div>
+      <div className="instr-tip">
+        <span>💡</span>
+        <span>Click any <strong>SAP node</strong> in the flowchart to preview the system transaction screen.</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── WORKSPACE VIEW ───────────────────────────────────────
+function WorkspaceView({ fn, proc, topic, sop, barMorph }) {
+  const [activeNode, setActiveNode] = useState(null);
+  const [magnify, setMagnify] = useState(false);
+  const [magnifyOpen, setMagnifyOpen] = useState(false);
+  const isSAPNode = activeNode?.type === 'sap';
+
+  const handleNode = node => {
+    setActiveNode(prev => prev?.id === node.id ? null : node);
+    setMagnify(false);
+  };
+
+  useEffect(() => {
+    if (magnify) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setMagnifyOpen(true));
+      });
+    } else {
+      setMagnifyOpen(false);
+    }
+  }, [magnify]);
+
+  const closeMagnify = () => {
+    setMagnifyOpen(false);
+    setTimeout(() => setMagnify(false), 300);
+  };
+
+  const rightTitle = !activeNode ? 'Step Instructions'
+    : isSAPNode ? 'SAP Transaction Preview'
+    : activeNode.type === 'decision' ? 'Decision Gate Detail'
+    : 'Step Guidelines';
+  const rightMode = !activeNode ? 'GUIDE' : isSAPNode ? 'SAP' : activeNode.type==='decision' ? 'GATE' : 'STEP';
+  const rightModeClass = isSAPNode ? ' sap' : ' instr';
+
+  return (
+    <div className="view ws">
+      <div className="ws-sub-hdr" style={barMorph ? { viewTransitionName: 'active-header-morph' } : undefined}>
+        <span className="ws-fn">{fn.name}</span>
+        <span className="ws-sub-sep">›</span>
+        <span className="ws-proc">{proc.name}</span>
+        <span className="ws-sub-sep">›</span>
+        <span className="ws-sop" style={{ viewTransitionName: 'bc-sop-morph' }}>{topic.name}</span>
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
+          {isSAPNode && (
+            <button className="magnify-btn" onClick={()=>setMagnify(true)}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              Magnify
+            </button>
+          )}
+          <span style={{background:'rgba(255,255,255,.12)',border:'1px solid rgba(255,255,255,.25)',borderRadius:99,padding:'3px 12px',fontSize:12,fontWeight:600}}>SOP {String(sop.sopNum).padStart(3,'0')}</span>
+        </div>
+      </div>
+      <div className="ws-body">
+        <div className="ws-left">
+          <div className="ws-left-hdr">
+            <div className="ws-left-title">Process Flowchart</div>
+            <div className="ws-left-hint">Click any node to inspect guidelines, T-codes, and responsible roles →</div>
+          </div>
+          <div style={{flex:1,overflow:'hidden'}}>
+            <FlowChart sopNum={sop.sopNum} activeNodeId={activeNode?.id} onNodeClick={handleNode}/>
+          </div>
+        </div>
+        <div className="ws-right">
+          <div className="ws-right-hdr">
+            <div className="ws-right-title">{rightTitle}</div>
+            <span className={`ws-right-mode${rightModeClass}`}>{rightMode}</span>
+          </div>
+          <div className="ws-right-body" key={activeNode?.id ?? 'empty'}>
+            {!activeNode && <InstructionsPanel sop={sop} proc={proc} topic={topic}/>}
+            {activeNode && isSAPNode && <SAPMockup node={activeNode} sopName={sop.name}/>}
+            {activeNode && !isSAPNode && <NodeDetailPanel node={activeNode} sop={sop} proc={proc}/>}
+          </div>
+        </div>
+      </div>
+
+      {magnify && (
+        <div className={`magnify-overlay ${magnifyOpen ? 'is-open' : ''}`} onClick={closeMagnify}>
+          <div className="magnify-modal" onClick={e=>e.stopPropagation()}>
+            <div className="magnify-mhdr">
+              <span className="magnify-mhdr-title">
+                SAP Transaction Preview — <code style={{fontFamily:'Courier New',fontSize:13}}>{activeNode?.label}</code>
+              </span>
+              <button className="magnify-mclose" onClick={closeMagnify}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                Close
+              </button>
+            </div>
+            <div className="magnify-mbody">
+              <SAPMockup node={activeNode} sopName={sop.name}/>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SEARCH OVERLAY ───────────────────────────────────────
+function SearchOverlay({ open, onClose, onSelect }) {
+  const [q, setQ] = useState('');
+  const inputRef = useRef(null);
+
+  useEffect(()=>{ 
+    if(open) { 
+      setTimeout(() => inputRef.current?.focus(), 50);
+      setQ(''); 
+    } 
+  },[open]);
+
+  const filtered = q.trim().length < 2 ? [] : ALL_SOPS.filter(s =>
+    s.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.fn.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.proc.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.topic.name.toLowerCase().includes(q.toLowerCase())
+  ).slice(0,20);
+
+  const grouped = {};
+  filtered.forEach(s => {
+    if (!grouped[s.fn.name]) grouped[s.fn.name] = [];
+    grouped[s.fn.name].push(s);
+  });
+
+  return (
+    <div className={`srch-overlay ${open ? 'is-active' : ''}`} onClick={onClose}>
+      <div className="srch-modal" onClick={e=>e.stopPropagation()}>
+        <div className="srch-input-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="srch-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input ref={inputRef} className="srch-input" placeholder="Search SOPs, processes, topics…" value={q} onChange={e=>setQ(e.target.value)}/>
+          <span className="srch-esc">ESC</span>
+        </div>
+        <div className="srch-results">
+          {q.trim().length < 2 && (
+            <div className="search-fade-in srch-empty" style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+              <div style={{fontWeight:700,color:'var(--blue)',marginBottom:6,fontSize:15}}>262 SOPs indexed across 7 functions</div>
+              <div style={{color:'var(--muted)',fontSize:12,marginBottom:20}}>Start typing to search or jump directly to a function:</div>
+              <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:8,maxWidth:440,margin:'0 auto'}}>
+                {SOP_DATA.map(f => (
+                  <button key={f.id} className="srch-quick-pill" onClick={() => setQ(f.name)}>
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {q.trim().length >= 2 && (
+            <div className="search-fade-in">
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 18px',borderBottom:'1px solid var(--border)'}}>
+                <span style={{fontSize:13,color:'var(--muted)'}}>Showing results for "{q}"</span>
+                <button onClick={() => setQ('')} style={{color:'var(--accent)',cursor:'pointer',fontSize:12,background:'none',border:'none'}}>✕ Clear Search</button>
+              </div>
+              {filtered.length === 0 && (
+                <div className="srch-empty">No results for "<strong>{q}</strong>"</div>
+              )}
+              {Object.entries(grouped).map(([fnName, items])=>(
+                <div key={fnName}>
+                  <div className="srch-group-hdr">{fnName}</div>
+                  {items.map(s=>(
+                    <div key={s.sopNum} className="srch-result" onClick={() => onSelect(s)}>
+                      <div><span className="srch-r-badge">SOP {String(s.sopNum).padStart(3,'0')}</span><span className="srch-r-name">{s.name}</span></div>
+                      <div className="srch-r-path">{s.proc.name} › {s.topic.name}</div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="srch-footer">
+          <span className="srch-hint"><kbd style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px',fontSize:10}}>↵</kbd> Open</span>
+          <span className="srch-hint"><kbd style={{background:'var(--white)',border:'1px solid var(--border)',borderRadius:3,padding:'1px 5px',fontSize:10}}>ESC</kbd> Close</span>
+          <span style={{marginLeft:'auto'}}>{filtered.length > 0 ? `${filtered.length} result${filtered.length!==1?'s':''}` : '262 SOPs indexed'}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const vtNamedElements = new Set();
+const persistentMorphTokens = new Set(['active-header-morph', 'active-subhdr-morph']);
+const BAR_MORPH_MS = 520;
+let navClearTimer = null;
+
+function setVTName(el, token) {
+  if (!el || !el.style) return null;
+  el.style.viewTransitionName = token || '';
+  if (token) vtNamedElements.add(el);
+  else vtNamedElements.delete(el);
+  return el;
+}
+
+function clearAllVTNames() {
+  const clearEl = el => {
+    if (!el || !el.style || !el.style.viewTransitionName) return;
+    if (persistentMorphTokens.has(el.style.viewTransitionName)) return;
+    el.style.viewTransitionName = '';
+    vtNamedElements.delete(el);
+  };
+  vtNamedElements.forEach(clearEl);
+  document.querySelectorAll('[style*="view-transition-name"]').forEach(clearEl);
+  vtNamedElements.clear();
+}
+
+function applyTextMorphSource(srcEl, selector, token) {
+  if (!srcEl) return null;
+  const textEl = selector ? srcEl.querySelector(selector) : srcEl;
+  if (!textEl) return null;
+  return setVTName(textEl, token);
+}
+
+function getActiveBlueBar() {
+  return document.querySelector('.main > .view.view-enter .fn-hdr, .main > .view.view-enter .ws-sub-hdr');
+}
+
+function animateBlueBarMorph(fromRect, fromBg, toBar) {
+  if (!fromRect || !toBar) return;
+  const toRect = toBar.getBoundingClientRect();
+  if (!fromRect.width || !fromRect.height || !toRect.width || !toRect.height) return;
+
+  const ghost = document.createElement('div');
+  ghost.className = 'bar-morph-ghost';
+  ghost.style.left = `${fromRect.left}px`;
+  ghost.style.top = `${fromRect.top}px`;
+  ghost.style.width = `${fromRect.width}px`;
+  ghost.style.height = `${fromRect.height}px`;
+  ghost.style.background = fromBg || 'var(--blue)';
+  document.body.appendChild(ghost);
+  toBar.classList.add('bar-morph-target-hidden');
+
+  const endTransform = `translate3d(${toRect.left - fromRect.left}px, ${toRect.top - fromRect.top}px, 0) scale(${toRect.width / fromRect.width}, ${toRect.height / fromRect.height})`;
+  const cleanup = () => {
+    toBar.classList.remove('bar-morph-target-hidden');
+    ghost.remove();
+  };
+
+  requestAnimationFrame(() => {
+    if (ghost.animate) {
+      const animation = ghost.animate([
+        { transform: 'translate3d(0, 0, 0) scale(1, 1)', opacity: 1 },
+        { transform: endTransform, opacity: 1 }
+      ], {
+        duration: BAR_MORPH_MS,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'forwards'
+      });
+      animation.finished.then(cleanup, cleanup);
+      return;
+    }
+
+    ghost.style.transition = `transform ${BAR_MORPH_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+    ghost.style.transform = endTransform;
+    window.setTimeout(cleanup, BAR_MORPH_MS);
+  });
+}
+
+function runDashboardTransition(updateFn, { isBack = false, morphBar = false, after = null } = {}) {
+  clearAllVTNames();
+  if (navClearTimer) window.clearTimeout(navClearTimer);
+
+  const fromBar = morphBar ? getActiveBlueBar() : null;
+  const fromRect = fromBar ? fromBar.getBoundingClientRect() : null;
+  const fromBg = fromBar ? getComputedStyle(fromBar).backgroundColor : null;
+
+  document.documentElement.dataset.nav = isBack ? 'back' : 'fwd';
+  ReactDOM.flushSync(updateFn);
+
+  if (morphBar && fromRect) {
+    animateBlueBarMorph(fromRect, fromBg, getActiveBlueBar());
+  }
+
+  navClearTimer = window.setTimeout(() => {
+    if (after) ReactDOM.flushSync(after);
+    document.documentElement.dataset.nav = '';
+    navClearTimer = null;
+  }, BAR_MORPH_MS + 40);
+}
+
+// ─── APP ──────────────────────────────────────────────────
+function App() {
+  const [view, setView] = useState('home');
+  const [fn, setFn] = useState(null);
+  const [proc, setProc] = useState(null);
+  const [topic, setTopic] = useState(null);
+  const [sop, setSop] = useState(null);
+  const [search, setSearch] = useState(false);
+
+  const toggleSearch = useCallback((state) => {
+    clearAllVTNames();
+    const btn = document.querySelector('.srch-btn');
+    if (!document.startViewTransition) { setSearch(state); return; }
+    if (!state) {
+      const inner = document.querySelector('.srch-modal-inner');
+      if (inner) inner.style.display = 'none';
+      const inputWrap = document.querySelector('.srch-input-wrap');
+      if (inputWrap) inputWrap.style.display = 'none';
+    }
+    document.documentElement.dataset.nav = 'search';
+    if (state && btn) setVTName(btn, 'search-morph');
+    const t = document.startViewTransition(() => {
+      ReactDOM.flushSync(() => {
+        if (state && btn) setVTName(btn, '');
+        if (!state && btn) setVTName(btn, 'search-morph');
+        setSearch(state);
+      });
+    });
+    t.finished.finally(() => {
+      if (btn) setVTName(btn, '');
+      document.documentElement.dataset.nav = '';
+    });
+  }, []);
+
+  // ── FORWARD: fn-card → fn-hdr ─────────────────────────
+  const selectFn = useCallback((fnObj) => {
+    runDashboardTransition(() => {
+      setFn(fnObj); setProc(null); setTopic(null); setSop(null); setView('processes');
+    });
+  }, []);
+
+  // ── FORWARD: proc-card → proc-hdr ─────────────────────
+  const selectProc = useCallback((procObj) => {
+    runDashboardTransition(() => {
+      setProc(procObj); setTopic(null); setSop(null); setView('topics');
+    }, { morphBar: true });
+  }, []);
+
+  const selectSOP = useCallback((sopObj, topicObj, procObj) => {
+    runDashboardTransition(() => {
+      setSop(sopObj); setTopic(topicObj); if (procObj) setProc(procObj); setView('workspace');
+    }, { morphBar: true });
+  }, []);
+
+  const handleSearchSelect = useCallback(s => {
+    setSearch(false);
+    runDashboardTransition(() => {
+      setFn(s.fn);
+      setProc(s.proc);
+      setTopic(s.topic);
+      setSop(s);
+      setView('workspace');
+    }, { morphBar: !!getActiveBlueBar() });
+  }, []);
+
+  // ── BACK: morph reversal via breadcrumb ───────────────
+  const navTo = useCallback((key) => {
+    if (key === 'home') {
+      runDashboardTransition(() => {
+        setView('home');
+      }, {
+        isBack: true,
+        after: () => { setFn(null); setProc(null); setTopic(null); setSop(null); }
+      });
+    } else if (key === 'processes') {
+      runDashboardTransition(() => {
+        setView('processes');
+      }, {
+        isBack: true,
+        morphBar: true,
+        after: () => { setProc(null); setTopic(null); setSop(null); }
+      });
+    } else if (key === 'topics') {
+      runDashboardTransition(() => {
+        setView('topics');
+      }, {
+        isBack: true,
+        morphBar: true,
+        after: () => { setTopic(null); setSop(null); }
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const onKey = e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); toggleSearch(true); }
+      if (e.key === 'Escape') toggleSearch(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toggleSearch]);
+
+  return (
+    <>
+      <Header view={view} fn={fn} proc={proc} topic={topic && sop ? topic : null} onNav={navTo} onSearch={()=>toggleSearch(true)}/>
+      <div className="main">
+        <div className={`view ${view === 'home' ? 'view-enter' : 'view-exit'}`}>
+          <HomeView fn={fn} onSelect={selectFn} />
+        </div>
+        <div className={`view ${view === 'processes' ? 'view-enter' : 'view-exit'}`}>
+          {fn && <ProcessView fn={fn} proc={proc} onSelect={selectProc} barMorph={view === 'processes'} />}
+        </div>
+        <div className={`view ${view === 'topics' ? 'view-enter' : 'view-exit'}`}>
+          {fn && proc && <TopicView fn={fn} proc={proc} sop={sop} onSelectSOP={selectSOP} barMorph={view === 'topics'} />}
+        </div>
+        <div className={`view ${view === 'workspace' ? 'view-enter' : 'view-exit'}`}>
+          {fn && proc && topic && sop && <WorkspaceView fn={fn} proc={proc} topic={topic} sop={sop} barMorph={view === 'workspace'}/>}
+        </div>
+      </div>
+      <SearchOverlay open={search} onClose={()=>toggleSearch(false)} onSelect={handleSearchSelect}/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
