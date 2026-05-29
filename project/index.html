@@ -711,376 +711,133 @@ html:not([data-nav=""]) .main > .view {
      color: var(--white);
    }
 
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE RESPONSIVE OVERRIDES — viewports under 768px
-   Strictly presentation-layer. No logic, data, or script changes.
-   ═══════════════════════════════════════════════════════════════ */
-@media (max-width: 767px) {
-
-  /* ── 1. GLOBAL VIEWPORT OVERRIDES ────────────────────────── */
-  body {
+/* ==========================================================================
+   IRONCLAD RESPONSIVE RECONSTRUCTION (TARGETS FORGERY LAYOUTS UNDER 768PX)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* 1. Global Scrolling Reset: Break free from rigid layout boundaries */
+  body, #root {
     height: auto !important;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow: visible !important;
-    overflow-y: auto !important;
-  }
-  #root {
-    height: auto !important;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow: visible !important;
+    overflow: auto !important;
   }
   .main {
-    flex: 1 1 auto;
     overflow: visible !important;
-    position: relative;
+    height: auto !important;
+    min-height: calc(100vh - 140px);
   }
   .main > .view {
     position: relative !important;
-    inset: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    height: auto !important;
     overflow-y: visible !important;
   }
-  .main > .view:not(.view-enter) {
-    display: none !important;
-  }
 
-  /* ── 2. HEADER & NAVIGATION ──────────────────────────────── */
+  /* 2. Header Re-Architecture: Expand upper bar breadth, house the trail seamlessly */
   .hdr {
-    height: auto;
-    min-height: 48px;
-    padding: 8px 12px;
-    gap: 8px;
-    flex-wrap: wrap;
+    height: auto !important;
+    min-height: 92px !important;
+    padding: 12px 16px !important;
+    flex-wrap: wrap !important;
+    gap: 10px 8px !important;
+    align-content: center !important;
   }
-  .logo img {
-    height: 28px !important;
+  .logo {
+    flex-shrink: 0 !important;
+    order: 1 !important;
   }
-  /* Breadcrumb: truncate with ellipsis, allow horizontal scroll on touch */
+  .logout-btn {
+    margin-left: auto !important;
+    order: 2 !important;
+    padding: 6px 10px !important;
+  }
   .bc {
-    flex: 1 1 0%;
-    min-width: 0;
-    overflow-x: auto;
+    flex: none !important;
+    width: 100% !important;
+    order: 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    padding: 8px 0 2px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;          /* Firefox */
-    -ms-overflow-style: none;       /* Edge */
-    gap: 4px;
-    mask-image: linear-gradient(to right, black 90%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
   }
-  .bc::-webkit-scrollbar { display: none; }
-
   .bc-seg {
-    font-size: 11px;
-    flex-shrink: 0;
+    font-size: 12px !important;
   }
-  .bc-sep {
-    font-size: 9px;
+  .srch-btn {
+    width: 100% !important;
+    order: 4 !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    margin-top: 2px;
   }
-  /* Hide desktop keyboard hints on mobile */
   .kbd {
     display: none !important;
   }
-  .srch-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-    gap: 5px;
-  }
-  .logout-btn {
-    padding: 5px 8px;
-    font-size: 11px;
-    margin-left: 4px;
-    gap: 4px;
-  }
-  .logout-btn > span {
-    display: none; /* Keep icon only on mobile */
-  }
 
-  /* ── 3. DYNAMIC GRID ADJUSTMENTS ────────────────────────── */
-  /* Home hero block — reduce padding */
+  /* 3. Lower Bar Compressions: Flatten the deep blue hero blocks right beneath header */
   .home-hero-block {
-    padding: 28px 16px 24px !important;
+    padding: 16px 16px !important;
+    text-align: center !important;
   }
   .home-hero-ttl {
-    font-size: 22px !important;
-    letter-spacing: -0.3px;
+    font-size: 20px !important;
+    margin-bottom: 4px !important;
   }
   .home-hero-sub {
     font-size: 12px !important;
   }
-  .home-content-grid {
-    padding: 20px 12px !important;
-  }
-  /* Function cards: single column */
-  .fn-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-  .fn-card {
-    padding: 18px;
-  }
-  .fn-name {
-    font-size: 16px;
-  }
-  .fn-desc {
-    font-size: 11px;
-  }
-  /* Process cards: single column */
-  .proc-body {
-    padding: 16px 12px;
-  }
-  .proc-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-  .proc-card {
-    padding: 16px;
-  }
-  .proc-name {
-    font-size: 14px;
-  }
-  /* Function header — tighter padding */
   .fn-hdr {
-    padding: 12px 14px !important;
-    flex-wrap: wrap;
-    gap: 8px;
+    padding: 10px 16px !important;
   }
   .fn-hdr-name {
-    font-size: 17px !important;
+    font-size: 16px !important;
   }
-  .fn-hdr-meta {
-    font-size: 11px;
-  }
-  /* Process header — tighter padding */
   .proc-hdr {
-    padding: 10px 14px;
-    gap: 8px;
-  }
-  .proc-hdr-name {
-    font-size: 14px;
-  }
-  /* Topic view pills row — compact */
-  .pills-row-wrap {
-    padding: 12px 12px 10px;
-  }
-  .pills-row {
-    gap: 6px;
-  }
-  .pill {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-  /* Subtopic cards: single column */
-  .subs-body {
-    padding: 16px 12px;
-  }
-  .subs-grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-  }
-  .sub-card {
-    padding: 14px;
-  }
-  .sub-name {
-    font-size: 12px;
+    padding: 8px 16px !important;
   }
 
-  /* ── 4. SPLIT-PANE WORKSPACE REMAP ──────────────────────── */
-  .ws-sub-hdr {
-    padding: 8px 12px;
-    gap: 8px;
-    flex-wrap: wrap;
-    font-size: 11px;
+  /* 4. Card De-stretching: Transition into clean stacked layout tracks */
+  .home-content-grid {
+    padding: 16px !important;
   }
+  .fn-grid, .proc-grid, .subs-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .fn-card, .proc-card, .sub-card {
+    width: 100% !important;
+    transform: none !important;
+    padding: 18px !important;
+  }
+
+  /* 5. Split-Pane Workspace Remap: Stack flowchart and panels vertically */
   .ws-body {
     flex-direction: column !important;
+    height: auto !important;
     overflow: visible !important;
   }
-  .ws-left {
+  .ws-left, .ws-right {
     width: 100% !important;
+    height: auto !important;
     border-right: none !important;
-    border-bottom: 1px solid var(--border);
-    min-height: 320px;
-    max-height: 50vh;
-    overflow: hidden;
-  }
-  .ws-right {
-    width: 100% !important;
-    min-height: 300px;
-    overflow: visible;
-  }
-  .ws-left-hdr {
-    padding: 10px 14px;
-  }
-  .ws-left-title {
-    font-size: 13px;
-  }
-  .ws-left-hint {
-    font-size: 10px;
-  }
-  .ws-right-hdr {
-    padding: 10px 14px;
-  }
-  .ws-right-title {
-    font-size: 13px;
+    overflow: visible !important;
   }
   .ws-right-body {
-    overflow: visible !important;
-  }
-  /* Workspace view needs full height on mobile */
-  .ws {
-    height: auto !important;
-    min-height: 100%;
-  }
-  .pv, .tv {
-    height: auto !important;
-    min-height: 100%;
+    overflow-x: auto !important;
   }
 
-  /* ── 5. SAP MOCKUP & DATA TABLE RESILIENCE ──────────────── */
-  /* SAP inner grids: allow independent horizontal scroll */
-  .ws-right div[style*="gridTemplateColumns"] {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  /* Governance banner — wrap on mobile */
-  .ws-gov-banner {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    padding: 8px 12px !important;
-    font-size: 11px !important;
-  }
-  /* Instruction panel — compact */
-  .instr-panel {
-    padding: 14px 12px;
-  }
-  .instr-sop-name {
-    font-size: 12px;
-  }
-  /* Node detail panel — compact */
-  .ndp {
-    padding: 14px 12px;
-  }
-  .ndp-title {
-    font-size: 13px;
-  }
-  .ndp-meta {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .ndp-meta-lbl {
-    min-width: 60px;
-  }
-
-  /* ── SEARCH OVERLAY MOBILE POLISH ───────────────────────── */
-  .srch-overlay {
-    padding-top: 24px;
-    align-items: flex-start;
-  }
-  .srch-modal {
-    width: 96vw;
-    max-width: 96vw;
-    border-radius: 12px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-  }
-  .srch-results {
-    max-height: 55vh;
-  }
-  .srch-input-wrap {
-    padding: 12px 14px;
-    gap: 8px;
-  }
-  .srch-input {
-    font-size: 14px;
-  }
-  /* Search footer keyboard hints hidden on touch */
-  .srch-footer .srch-hint kbd {
-    display: none;
-  }
-  .srch-footer {
-    padding: 6px 14px;
-    font-size: 9px;
-  }
-
-  /* ── MAGNIFY MODAL — FULL-SCREEN ON MOBILE ──────────────── */
-  .magnify-overlay {
-    padding: 8px;
-  }
-  .magnify-modal {
-    width: 100vw !important;
-    height: 95vh !important;
-    border-radius: 10px;
-  }
-  .magnify-mhdr {
-    padding: 10px 14px;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .magnify-mhdr-title {
-    font-size: 12px;
-  }
-
-  /* ── LOGIN VIEW MOBILE POLISH ───────────────────────────── */
-  .login-container {
-    padding: 0 16px;
-    margin-top: 20px;
-  }
-  .login-title {
-    font-size: 17px;
-  }
-  .login-subtitle {
-    font-size: 13px;
-    margin-bottom: 24px;
-  }
-  .login-profile-picker-card {
-    margin-top: 28px;
-  }
-
-  /* ── TOUCH-FRIENDLY TAP TARGETS ─────────────────────────── */
-  .fn-card, .proc-card, .sub-card, .pill, .srch-result {
-    min-height: 44px; /* iOS minimum tap target */
-  }
-  /* Disable hover transforms on touch to prevent sticky states */
-  @media (hover: none) {
-    .fn-card:hover,
-    .proc-card:hover,
-    .sub-card:hover {
-      transform: none !important;
-      box-shadow: var(--sh) !important;
+  /* 6. Landscape SAP Screenshot Trick for Portrait Viewports */
+  @media (orientation: portrait) {
+    .magnify-modal {
+      width: 88vh !important;
+      height: 85vw !important;
+      transform: rotate(90deg) !important;
+      transform-origin: center !important;
     }
-  }
-
-  /* ── WARNING / CALLOUT CARDS ─────────────────────────────── */
-  .warning-card, .alert-box, .info-callout {
-    padding: 10px 12px;
-    margin: 12px 0;
-  }
-  .callout-text-main {
-    font-size: 12px;
-  }
-}
-
-/* ── INTERMEDIATE TABLET BREAKPOINT (768px–1024px) ────────── */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .fn-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 16px;
-  }
-  .proc-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 14px;
-  }
-  .subs-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
-  }
-  .home-hero-block {
-    padding: 36px 28px 32px !important;
-  }
-  .home-content-grid {
-    padding: 28px 20px !important;
   }
 }
 </style>
