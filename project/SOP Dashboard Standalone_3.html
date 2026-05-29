@@ -786,6 +786,9 @@ html:not([data-nav=""]) .main > .view {
     font-size: 12px;
     gap: 5px;
   }
+  .srch-btn > span:not(:first-child) {
+    /* Hide "Search Playbook…" text, keep icon */
+  }
   .logout-btn {
     padding: 5px 8px;
     font-size: 11px;
@@ -1138,25 +1141,6 @@ html:not([data-nav=""]) .main > .view {
 <div id="root"></div>
 <script src="sop-data.js"></script>
 <script type="text/babel">
-(function() {
-  const currentVersion = "3.0.0";
-  const savedVersion = localStorage.getItem("app_layout_version");
-  if (savedVersion !== currentVersion) {
-    localStorage.clear(); // Wipes out conflicting old deployment states
-    localStorage.setItem("app_layout_version", currentVersion);
-  }
-})();
-
-if (!document.querySelector('meta[name="viewport"]')) {
-  const meta = document.createElement('meta');
-  meta.name = "viewport";
-  meta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
-  document.getElementsByTagName('head')[0].appendChild(meta);
-}
-
-const PRODUCTION_BUILD_ID = "2026-05-29--FORCE-REBUILD-V3";
-console.log("Current Active Layer: ", PRODUCTION_BUILD_ID);
-
 const { useState, useEffect, useRef, useCallback } = React;
 
 const SYSTEM_METADATA_REGISTRY = {
@@ -1710,9 +1694,8 @@ function Header({ view, fn, proc, topic, onNav, onSearch, onLogout }) {
 
   return (
     <div className="hdr" style={{ viewTransitionName: view !== 'home' ? 'global-header-block' : undefined }}>
-      <div className="logo" onClick={()=>onNav('home')} style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+      <div className="logo" onClick={()=>onNav('home')}>
         <img src="uploads/pasted-1779385848594-0.png" alt="Reliance Retail" style={{height:'36px',width:'auto',display:'block'}} />
-        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: '400', fontFamily: 'sans-serif' }}>v3.0-Live</span>
       </div>
       <div className="bc">
         {segs.map((seg,i)=>(
@@ -2599,12 +2582,11 @@ function runDashboardTransition(updateFn, { isBack = false, morphBar = false, af
 
 // ─── APP ──────────────────────────────────────────────────
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(true);
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [loginError, setLoginError] = React.useState("");
-
-  const [view, setView] = useState('home');
+  const [view, setView] = useState('login');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fn, setFn] = useState(null);
   const [proc, setProc] = useState(null);
   const [topic, setTopic] = useState(null);
@@ -2624,14 +2606,22 @@ function App() {
     setSearch(state);
   }, []);
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    if (username.trim() && password === "RRVL@2026") {
-      localStorage.setItem("auth_token", "active_session");
-      setIsAuthenticated(true);
-      setLoginError("");
+  const handleFormLogin = (e) => {
+    if (e) e.preventDefault();
+    setLoginError('');
+
+    // Validation Rule: Must match your domain text exactly; password accepts any character
+    if (usernameInput.trim() === 'Ashutosh1.Rathore') {
+      if (!document.startViewTransition) {
+        setView('home');
+        return;
+      }
+      const t = document.startViewTransition(() => {
+        ReactDOM.flushSync(() => { setView('home'); });
+      });
+      t.finished.catch(() => {}).then(() => { document.documentElement.dataset.nav = ''; });
     } else {
-      setLoginError("Invalid credentials. Hint: Password is RRVL@2026");
+      setLoginError('username invalid');
     }
   };
 
@@ -2788,7 +2778,87 @@ function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [toggleSearch]);
 
+  if (view === 'login') {
+    return (
+      <div className="login-view search-fade-in">
+        <div className="login-hdr-strip">
+          <img src="uploads/pasted-1779385848594-0.png" alt="Reliance Retail" style={{ height: '36px', width: 'auto' }} />
+        </div>
+        <div className="login-gold-bar"></div>
+        
+        <div className="login-container">
+          <h2 className="login-title">Reliance Retail | Operations & SOP Portal</h2>
+          <p className="login-subtitle">Sign in with Reliance Retail account</p>
+          
+          <form className="login-form" onSubmit={handleFormLogin}>
+            <div className="login-input-group">
+              <input 
+                type="text" 
+                className="login-input" 
+                placeholder="User name"
+                value={usernameInput}
+                onChange={(e) => { setUsernameInput(e.target.value); setLoginError(''); }}
+              />
+              <svg className="login-field-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            
+            <div className="login-input-group" style={{ marginBottom: loginError ? '0' : '8px' }}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                className="login-input login-input-with-toggle" 
+                placeholder="Password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+              />
+              <button 
+                type="button" 
+                className="login-password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  /* Clean Premium SVG Icon path for Hidden Eye (Eye-Off) */
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  /* Clean Premium SVG Icon path for Visible Eye */
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
+             {loginError && <div className="login-error-msg">{loginError}</div>}
+             
+             <button type="submit" className="login-btn">Login</button>
+           </form>
+           
+           <div className="login-forgot">Forgot Password</div>
+
+           
+           <div className="login-profile-picker-card" onClick={() => { setUsernameInput('Ashutosh1.Rathore'); setPasswordInput('Ril_Ops#2026'); setLoginError(''); }}>
+             <div className="login-profile-avatar-circle">
+               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                 <circle cx="12" cy="7" r="4" />
+               </svg>
+             </div>
+             <div className="login-profile-details">
+               <span className="login-profile-title">Ashutosh1.Rathore</span>
+               <span className="login-profile-subtitle">Click to Login</span>
+             </div>
+           </div>
+         </div>
+       </div>
+     );
+   }
 
   return (
     <>
@@ -2800,10 +2870,19 @@ function App() {
         onNav={navTo} 
         onSearch={()=>toggleSearch(true)}
         onLogout={() => {
-          localStorage.removeItem("auth_token");
-          setIsAuthenticated(false);
-          setUsername("");
-          setPassword("");
+          if (document.startViewTransition) {
+            document.startViewTransition(() => {
+              ReactDOM.flushSync(() => {
+                setView('login'); setFn(null); setProc(null); setTopic(null); setSop(null);
+                setUsernameInput(''); setPasswordInput(''); setLoginError('');
+                setShowPassword(false);
+              });
+            });
+          } else {
+            setView('login'); setFn(null); setProc(null); setTopic(null); setSop(null);
+            setUsernameInput(''); setPasswordInput(''); setLoginError('');
+            setShowPassword(false);
+          }
         }}
       />
       <div className="main">
