@@ -745,192 +745,239 @@ html:not([data-nav=""]) .main > .view {
     display: none !important;
   }
 
-  /* ── 2. HEADER & NAVIGATION ──────────────────────────────── */
+  /* ── 2. HEADER — Protect logout, breadcrumb visibility ─────
+     Two-row layout on mobile:
+       Row 1: logo | search btn | logout btn
+       Row 2: breadcrumb trail (full width, scrollable)
+     This guarantees logout never clips and breadcrumbs are always legible.
+  ──────────────────────────────────────────────────────────── */
   .hdr {
     height: auto;
     min-height: 48px;
-    padding: 8px 12px;
-    gap: 8px;
-    flex-wrap: wrap;
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: wrap;           /* allows breadcrumb to wrap to row 2 */
+    align-items: center;
   }
+  /* Logo stays compact */
   .logo img {
-    height: 28px !important;
+    height: 26px !important;
   }
-  /* Breadcrumb: truncate with ellipsis, allow horizontal scroll on touch */
+  /* Breadcrumb: full-width row 2 with horizontal scroll */
   .bc {
-    flex: 1 1 0%;
+    order: 10;                 /* push bc to after logo/search/logout row */
+    flex: 0 0 100%;            /* full width, own row */
+    width: 100%;
     min-width: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;          /* Firefox */
-    -ms-overflow-style: none;       /* Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    white-space: nowrap;       /* keep all segments on one line */
     gap: 4px;
-    mask-image: linear-gradient(to right, black 90%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    padding: 3px 0 4px;
+    /* Fade-out at right edge to signal scrollability */
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
   .bc::-webkit-scrollbar { display: none; }
-
   .bc-seg {
     font-size: 11px;
     flex-shrink: 0;
+    display: inline-block !important;  /* keep inline for nowrap to work */
   }
   .bc-sep {
     font-size: 9px;
+    flex-shrink: 0;
+    display: inline-block;
   }
-  /* Hide desktop keyboard hints on mobile */
+  /* Search button: compact icon-only on mobile */
+  .srch-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 4px;
+    margin-left: auto;         /* push search + logout to right edge */
+  }
+  /* Hide "Search Playbook..." text label — keep icon only */
+  .srch-btn > span:last-of-type {
+    display: none;
+  }
+  /* Hide desktop keyboard shortcut hint */
   .kbd {
     display: none !important;
   }
-  .srch-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-    gap: 5px;
-  }
-  .srch-btn > span:not(:first-child) {
-    /* Hide "Search Playbook…" text, keep icon */
-  }
+  /* Logout: always visible, compact icon-only */
   .logout-btn {
+    flex-shrink: 0;
     padding: 5px 8px;
     font-size: 11px;
     margin-left: 4px;
-    gap: 4px;
+    gap: 0;
+    min-width: 32px;
+    justify-content: center;
   }
+  /* Hide logout text label on mobile — icon is enough */
   .logout-btn > span {
-    display: none; /* Keep icon only on mobile */
+    display: none;
   }
 
-  /* ── 3. DYNAMIC GRID ADJUSTMENTS ────────────────────────── */
-  /* Home hero block — reduce padding */
+  /* ── 3. HOME PAGE CARDS — Prevent stretch, enforce bounds ── */
   .home-hero-block {
-    padding: 28px 16px 24px !important;
+    padding: 24px 14px 20px !important;
   }
   .home-hero-ttl {
-    font-size: 22px !important;
-    letter-spacing: -0.3px;
+    font-size: 20px !important;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
   }
   .home-hero-sub {
     font-size: 12px !important;
   }
   .home-content-grid {
-    padding: 20px 12px !important;
+    padding: 16px 10px !important;
   }
-  /* Function cards: single column */
+  /* Fn-grid: single column, no horizontal stretch */
   .fn-grid {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
+  /* Cards: controlled height with internal scroll if content overflows */
   .fn-card {
-    padding: 18px;
+    padding: 16px 14px;
+    max-height: 180px;          /* cap card height on mobile */
+    overflow-y: auto;           /* internal scroll if text overflows cap */
+    -webkit-overflow-scrolling: touch;
   }
   .fn-name {
-    font-size: 16px;
+    font-size: 15px;
   }
   .fn-desc {
     font-size: 11px;
+    line-height: 1.45;
+    /* Clamp to 2 lines on mobile — prevents card height explosion */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
-  /* Process cards: single column */
+  /* Process view */
   .proc-body {
-    padding: 16px 12px;
+    padding: 14px 10px;
   }
   .proc-grid {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
   .proc-card {
-    padding: 16px;
+    padding: 14px;
+    max-height: 160px;
+    overflow-y: auto;
   }
   .proc-name {
     font-size: 14px;
   }
-  /* Function header — tighter padding */
+  /* Function section header */
   .fn-hdr {
-    padding: 12px 14px !important;
+    padding: 10px 12px !important;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .fn-hdr-name {
-    font-size: 17px !important;
+    font-size: 16px !important;
   }
   .fn-hdr-meta {
-    font-size: 11px;
+    font-size: 10px;
   }
-  /* Process header — tighter padding */
+  /* Process header row */
   .proc-hdr {
-    padding: 10px 14px;
-    gap: 8px;
+    padding: 8px 12px;
+    gap: 6px;
+    flex-wrap: wrap;
   }
   .proc-hdr-name {
-    font-size: 14px;
+    font-size: 13px;
   }
-  /* Topic view pills row — compact */
+  /* Topic pills strip */
   .pills-row-wrap {
-    padding: 12px 12px 10px;
+    padding: 10px 10px 8px;
   }
   .pills-row {
     gap: 6px;
   }
   .pill {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 5px 11px;
+    font-size: 11px;
   }
-  /* Subtopic cards: single column */
+  /* Subtopic cards */
   .subs-body {
-    padding: 16px 12px;
+    padding: 14px 10px;
   }
   .subs-grid {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
   .sub-card {
-    padding: 14px;
+    padding: 13px;
+    max-height: 120px;
+    overflow-y: auto;
   }
   .sub-name {
     font-size: 12px;
   }
 
-  /* ── 4. SPLIT-PANE WORKSPACE REMAP ──────────────────────── */
+  /* ── 4. SPLIT-PANE WORKSPACE — Vertical stack on mobile ──── */
   .ws-sub-hdr {
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 7px 10px;
+    gap: 6px;
     flex-wrap: wrap;
-    font-size: 11px;
+    font-size: 10px;
+    min-height: 0;
   }
+  /* Stack flowchart above instructions */
   .ws-body {
     flex-direction: column !important;
     overflow: visible !important;
+    height: auto !important;
   }
+  /* Flowchart panel: full width, scrollable, capped height */
   .ws-left {
     width: 100% !important;
     border-right: none !important;
     border-bottom: 1px solid var(--border);
-    min-height: 320px;
-    max-height: 50vh;
+    min-height: 300px;
+    max-height: 48vh;           /* takes ~half the screen */
     overflow: hidden;
+    flex-shrink: 0;
   }
+  /* Instructions/SAP preview panel: full width */
   .ws-right {
     width: 100% !important;
-    min-height: 300px;
+    min-height: 280px;
     overflow: visible;
+    flex-shrink: 0;
   }
   .ws-left-hdr {
-    padding: 10px 14px;
+    padding: 8px 12px;
   }
   .ws-left-title {
-    font-size: 13px;
+    font-size: 12px;
   }
   .ws-left-hint {
-    font-size: 10px;
+    font-size: 9px;
   }
   .ws-right-hdr {
-    padding: 10px 14px;
+    padding: 8px 12px;
   }
   .ws-right-title {
-    font-size: 13px;
+    font-size: 12px;
   }
   .ws-right-body {
     overflow: visible !important;
+    /* Allow natural expansion for instruction/node detail content */
+    min-height: 240px;
   }
-  /* Workspace view needs full height on mobile */
+  /* Workspace and process/topic views: auto height on mobile */
   .ws {
     height: auto !important;
     min-height: 100%;
@@ -940,29 +987,79 @@ html:not([data-nav=""]) .main > .view {
     min-height: 100%;
   }
 
-  /* ── 5. SAP MOCKUP & DATA TABLE RESILIENCE ──────────────── */
-  /* SAP inner grids: allow independent horizontal scroll */
-  .ws-right div[style*="gridTemplateColumns"] {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  /* ── 5. SAP MOCKUP — Portrait-to-Landscape rotation trick ──
+     In portrait mode the SAP mockup is very narrow.
+     We rotate the mockup container 90deg so users see it in
+     landscape-equivalent proportions. The container dimensions
+     are swapped (width <-> height) after rotation to prevent clipping.
+  ──────────────────────────────────────────────────────────── */
+  /* Wrapper context for the rotation */
+  .ws-right-body {
+    position: relative;
+    overflow: hidden;
   }
-  /* Governance banner — wrap on mobile */
+  /* SAP mockup landscape rotation in portrait mode */
+  @media (orientation: portrait) {
+    /* Target the SAP mockup container specifically */
+    .ws-right-body > div[style*="fontFamily"][style*="Arial"] {
+      /* Rotate the SAP UI 90deg clockwise so tables render landscape-wide */
+      transform: rotate(90deg);
+      transform-origin: center center;
+      /* After rotation, swap logical width/height to fill the panel */
+      width: 48vh !important;    /* becomes the rotated height */
+      height: 100% !important;
+      max-height: none !important;
+      /* Centre the rotated block */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -24vh;
+      margin-left: -24vh;
+      overflow: hidden;
+    }
+    /* Internal SAP data tables — independent horizontal scroll */
+    .ws-right-body > div[style*="fontFamily"][style*="Arial"] > div[style*="background"][style*="F0F0F0"] {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  /* Non-portrait (landscape on mobile) — plain overflow-x containment */
+  @media (orientation: landscape) {
+    .ws-right-body > div[style*="fontFamily"][style*="Arial"] {
+      width: 100% !important;
+      height: 100% !important;
+      overflow-x: auto;
+    }
+  }
+
+  /* Independent overflow-x on ALL SAP data grid containers */
+  .ws-right div[style*="gridTemplateColumns"],
+  .ws-right div[style*="grid-template-columns"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+  }
+  /* Governance/compliance banner — wrap, don't overflow */
   .ws-gov-banner {
     flex-wrap: wrap !important;
-    gap: 8px !important;
-    padding: 8px 12px !important;
-    font-size: 11px !important;
+    gap: 6px !important;
+    padding: 7px 10px !important;
+    font-size: 10px !important;
   }
-  /* Instruction panel — compact */
+  /* Instruction panel */
   .instr-panel {
-    padding: 14px 12px;
+    padding: 12px 10px;
+    overflow-y: auto;
+    max-height: 60vh;
   }
   .instr-sop-name {
-    font-size: 12px;
+    font-size: 11px;
   }
-  /* Node detail panel — compact */
+  /* Node detail panel */
   .ndp {
-    padding: 14px 12px;
+    padding: 12px 10px;
+    overflow-y: auto;
+    max-height: 60vh;
   }
   .ndp-title {
     font-size: 13px;
@@ -972,80 +1069,85 @@ html:not([data-nav=""]) .main > .view {
     gap: 4px;
   }
   .ndp-meta-lbl {
-    min-width: 60px;
+    min-width: 58px;
   }
 
-  /* ── SEARCH OVERLAY MOBILE POLISH ───────────────────────── */
+  /* ── SEARCH OVERLAY ─────────────────────────────────────── */
   .srch-overlay {
-    padding-top: 24px;
+    padding-top: 20px;
     align-items: flex-start;
+    padding-left: 0;
+    padding-right: 0;
   }
   .srch-modal {
-    width: 96vw;
-    max-width: 96vw;
+    width: 97vw;
+    max-width: 97vw;
     border-radius: 12px;
-    max-height: 85vh;
+    max-height: 88vh;
     display: flex;
     flex-direction: column;
   }
   .srch-results {
-    max-height: 55vh;
+    max-height: 56vh;
+    overflow-y: auto;
   }
   .srch-input-wrap {
-    padding: 12px 14px;
+    padding: 11px 13px;
     gap: 8px;
   }
   .srch-input {
-    font-size: 14px;
+    font-size: 15px; /* >= 16px prevents iOS zoom-on-focus; keep at 15 minimum */
   }
-  /* Search footer keyboard hints hidden on touch */
   .srch-footer .srch-hint kbd {
     display: none;
   }
   .srch-footer {
-    padding: 6px 14px;
+    padding: 5px 13px;
     font-size: 9px;
   }
 
-  /* ── MAGNIFY MODAL — FULL-SCREEN ON MOBILE ──────────────── */
+  /* ── MAGNIFY MODAL ───────────────────────────────────────── */
   .magnify-overlay {
-    padding: 8px;
+    padding: 6px;
   }
   .magnify-modal {
     width: 100vw !important;
-    height: 95vh !important;
+    height: 96vh !important;
     border-radius: 10px;
   }
   .magnify-mhdr {
-    padding: 10px 14px;
+    padding: 9px 12px;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 5px;
   }
   .magnify-mhdr-title {
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  /* ── LOGIN VIEW MOBILE POLISH ───────────────────────────── */
+  /* ── LOGIN SCREEN ────────────────────────────────────────── */
   .login-container {
-    padding: 0 16px;
-    margin-top: 20px;
+    padding: 0 14px;
+    margin-top: 16px;
   }
   .login-title {
-    font-size: 17px;
+    font-size: 16px;
   }
   .login-subtitle {
     font-size: 13px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .login-profile-picker-card {
-    margin-top: 28px;
+    margin-top: 24px;
   }
 
-  /* ── TOUCH-FRIENDLY TAP TARGETS ─────────────────────────── */
-  .fn-card, .proc-card, .sub-card, .pill, .srch-result {
-    min-height: 44px; /* iOS minimum tap target */
+  /* ── TOUCH-FRIENDLY TAP TARGETS (iOS HIG 44px minimum) ──── */
+  .fn-card, .proc-card, .sub-card {
+    min-height: 44px;
   }
-  /* Disable hover transforms on touch to prevent sticky states */
+  .pill, .srch-result {
+    min-height: 40px;
+  }
+  /* Suppress hover lift transforms on touch — prevents sticky states */
   @media (hover: none) {
     .fn-card:hover,
     .proc-card:hover,
@@ -1053,11 +1155,13 @@ html:not([data-nav=""]) .main > .view {
       transform: none !important;
       box-shadow: var(--sh) !important;
     }
+    .pill:hover:not(.active) {
+      transform: none;
+    }
   }
 
-  /* ── WARNING / CALLOUT CARDS ─────────────────────────────── */
+  /* ── COMPLIANCE CALLOUT CARDS ────────────────────────────── */
   .warning-card, .alert-box, .info-callout {
-    padding: 10px 12px;
     margin: 12px 0;
   }
   .callout-text-main {
